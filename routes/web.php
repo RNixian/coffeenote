@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SetupController;
 
 // Sidebar view
-Route::get('/sidebar', [SetupController::class, 'sidebar'])->name('sidebar');
+Route::get('/sidebar', [SetupController::class, 'header'])->name('sidebar');
 
 // Setup main + search
 Route::get('/setup', [SetupController::class, 'setup'])->name('setup');
