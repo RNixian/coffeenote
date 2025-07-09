@@ -9,6 +9,10 @@ use App\Models\CategoryModel;
 class SetupController extends Controller
 {
     // ========================== VIEWS ==========================
+
+    public function index(){
+        return view('index');
+    }
     
     public function sidebar()
     {
@@ -17,8 +21,8 @@ class SetupController extends Controller
 
     public function setup()
     {
-        $CategoryModel = CategoryModel::paginate(5, ['*'], 'category_page');
-        $GenreModel = GenreModel::paginate(5, ['*'], 'genre_page');
+        $CategoryModel = CategoryModel::paginate(8, ['*'], 'category_page');
+        $GenreModel = GenreModel::paginate(8, ['*'], 'genre_page');
 
         
         return view('setup', compact('GenreModel', 'CategoryModel'));
@@ -26,18 +30,19 @@ class SetupController extends Controller
 
     // ========================== CATEGORY CUD ==========================
 
-    public function storecategory(Request $request)
-    {
-        $request->validate([
-            'category' => 'required|min:1|max:255',
-        ]);
+   public function storecategory(Request $request)
+{
+    $request->validate([
+        'category' => 'required|min:1|max:255',
+    ]);
 
-// Store last input name in session
-session(['last_input' => 'category']);
+    // Set last input in session (✅ DO NOT forget it here)
+    session(['last_input' => 'category']);
 
-        CategoryModel::create($request->only('category')); 
-        return redirect()->route('setup');
-    }
+    CategoryModel::create($request->only('category')); 
+
+    return redirect()->route('setup');
+}
 
     public function editcategory($id)
     {
@@ -69,19 +74,19 @@ session(['last_input' => 'category']);
 
     // ========================== GENRE CUD ==========================
 
-    public function storegenre(Request $request)
-    {
-        $request->validate([
-            'genre' => 'required|min:1|max:255',
-        ]);
+ public function storegenre(Request $request)
+{
+    $request->validate([
+        'genre' => 'required|min:1|max:255',
+    ]);
 
-        // Store last input name in session
     session(['last_input' => 'genre']);
 
+    GenreModel::create($request->only('genre'));
 
-        GenreModel::create($request->only('genre')); 
-        return redirect()->route('setup');
-    }
+    return redirect()->route('setup');
+}
+
 
     public function editgenre($id)
     {

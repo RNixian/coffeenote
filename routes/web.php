@@ -2,9 +2,14 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SetupController;
+use App\Http\Controllers\ReadController;
+use App\Http\Controllers\UserController;
 
 // Sidebar view
-Route::get('/sidebar', [SetupController::class, 'header'])->name('sidebar');
+Route::get('/', [SetupController::class, 'index'])->name('index');
+
+// Sidebar view
+Route::get('/header', [SetupController::class, 'header'])->name('header');
 
 // Setup main + search
 Route::get('/setup', [SetupController::class, 'setup'])->name('setup');
@@ -24,3 +29,32 @@ Route::prefix('genre')->name('genre.')->group(function () {
     Route::get('/edit/{id}', [SetupController::class, 'editgenre'])->name('edit');
     Route::put('/update/{id}', [SetupController::class, 'updategenre'])->name('update');
 });
+
+
+// ADD TO READ
+Route::get('/add-to-read', [ReadController::class, 'addtoread'])->name('addtoread');
+
+Route::prefix('addtoread')->name('addtoread.')->group(function () {
+Route::post('/add-to-read', [ReadController::class, 'storetoread'])->name('store');
+});
+
+Route::get('/read', [ReadController::class, 'read'])->name('read');
+
+Route::prefix('addtoread')->name('addtoread.')->group(function () {
+Route::post('/add-to-read', [ReadController::class, 'storetoread'])->name('store');
+});
+
+
+Route::prefix('read')->name('read.')->group(function () {
+Route::get('/delete/{id}', [ReadController::class, 'deletenote'])->name('delete');
+  Route::get('/edit/{id}', [ReadController::class, 'editnote'])->name('edit');
+    Route::put('/update/{id}', [ReadController::class, 'updatenote'])->name('update');
+Route::get('/full-update/{id}', [ReadController::class, 'fullupdate'])->name('fullupdate');
+});
+
+
+
+
+
+
+
