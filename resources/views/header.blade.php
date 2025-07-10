@@ -1,5 +1,6 @@
 <!-- Load Lucide Icons -->
 <script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://unpkg.com/alpinejs" defer></script>
 
 <!-- Header / Navbar (Glitch Style) -->
 <header class="bg-black text-green-400 shadow-lg w-full fixed top-0 left-0 z-50 border-b-4 border-purple-500">
@@ -37,12 +38,36 @@
           </a>
         </li>
         <li>
-          <a href="{{ url('/setup') }}" class="block px-4 py-2 hover:text-blue-400 hover:bg-opacity-20 hover:bg-white rounded glitch-text">
-            <i data-lucide="users" class="inline w-4 h-4 text-purple-400"></i> Set-Up
-          </a>
+          <div x-data="{ open: false }" class="relative inline-block text-left">
+            <button @click="open = !open" class="p-2 rounded hover:bg-white-700 bg-white-600 shadow-glitch">
+  <i data-lucide="menu" class="w-5 h-5 text-neon-blue glitch-text"></i>
+</button>
+
+
+           <ul
+  x-show="open"
+  @click.away="open = false"
+  x-transition
+  class="absolute right-0 mt-2 w-48 bg-black border border-purple-500 text-white rounded shadow-lg z-10"
+>
+<div x-data="{ open: false }" class="relative inline-block text-left">
+
+              <li>
+                <a href="{{ url('/setup-category') }}"
+                   class="block px-4 py-2 hover:text-blue-400 hover:bg-opacity-20 hover:bg-white rounded glitch-text">
+                  <i data-lucide="users" class="inline w-4 h-4 text-purple-400"></i> Category
+                </a>
+              </li>
+              <li>
+                <a href="{{ url('/setup-genre') }}"
+                   class="block px-4 py-2 hover:text-blue-400 hover:bg-opacity-20 hover:bg-white rounded glitch-text">
+                  <i data-lucide="users" class="inline w-4 h-4 text-purple-400"></i> Genre
+                </a>
+              </li>
+            </ul>
+          </div>
         </li>
       </ul>
-      
     </nav>
   </div>
 </header>

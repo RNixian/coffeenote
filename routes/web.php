@@ -5,14 +5,14 @@ use App\Http\Controllers\SetupController;
 use App\Http\Controllers\ReadController;
 use App\Http\Controllers\UserController;
 
-// Sidebar view
+// front view
 Route::get('/', [SetupController::class, 'index'])->name('index');
 
-// Sidebar view
+// headers view
 Route::get('/header', [SetupController::class, 'header'])->name('header');
 
-// Setup main + search
-Route::get('/setup', [SetupController::class, 'setup'])->name('setup');
+// SETUP CATEGORY
+Route::get('/setup-category', [SetupController::class, 'setupcategory'])->name('category');
 
 // CATEGORY ROUTES
 Route::prefix('category')->name('category.')->group(function () {
@@ -21,6 +21,9 @@ Route::prefix('category')->name('category.')->group(function () {
     Route::get('/edit/{id}', [SetupController::class, 'editcategory'])->name('edit');
     Route::put('/update/{id}', [SetupController::class, 'updatecategory'])->name('update');
 });
+
+// SETUP GENRE
+Route::get('/setup-genre', [SetupController::class, 'setupgenre'])->name('genre');
 
 // GENRE ROUTES
 Route::prefix('genre')->name('genre.')->group(function () {

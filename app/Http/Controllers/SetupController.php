@@ -19,13 +19,20 @@ class SetupController extends Controller
         return view('sidebar');
     }
 
-    public function setup()
+    public function setupgenre()
     {
-        $CategoryModel = CategoryModel::paginate(8, ['*'], 'category_page');
-        $GenreModel = GenreModel::paginate(8, ['*'], 'genre_page');
+        $GenreModel = GenreModel::paginate(15, ['*'], 'genre_page');
 
         
-        return view('setup', compact('GenreModel', 'CategoryModel'));
+        return view('genre', compact('GenreModel'));
+    }
+
+    
+    public function setupcategory()
+    {
+        $CategoryModel = CategoryModel::paginate(8, ['*'], 'category_page');
+        
+        return view('category', compact('CategoryModel'));
     }
 
     // ========================== CATEGORY CUD ==========================
@@ -36,12 +43,9 @@ class SetupController extends Controller
         'category' => 'required|min:1|max:255',
     ]);
 
-    // Set last input in session (✅ DO NOT forget it here)
-    session(['last_input' => 'category']);
-
     CategoryModel::create($request->only('category')); 
 
-    return redirect()->route('setup');
+    return redirect()->route('category');
 }
 
     public function editcategory($id)
@@ -49,7 +53,7 @@ class SetupController extends Controller
         $category = CategoryModel::findOrFail($id);
         $GenreModel = GenreModel::all();
         $CategoryModel = CategoryModel::all();
-        return view('setup', compact('category', 'GenreModel', 'CategoryModel'));
+        return view('category', compact('category', 'GenreModel', 'CategoryModel'));
     }
 
     public function updatecategory(Request $request, $id)
@@ -61,7 +65,7 @@ class SetupController extends Controller
         $category = CategoryModel::findOrFail($id);
         $category->update($request->only('category'));
 
-        return redirect()->route('setup');
+        return redirect()->route('category');
     }
 
     public function deletecategory($id)
@@ -80,11 +84,9 @@ class SetupController extends Controller
         'genre' => 'required|min:1|max:255',
     ]);
 
-    session(['last_input' => 'genre']);
-
     GenreModel::create($request->only('genre'));
 
-    return redirect()->route('setup');
+    return redirect()->route('genre');
 }
 
 
@@ -93,7 +95,7 @@ class SetupController extends Controller
         $genre = GenreModel::findOrFail($id);
         $GenreModel = GenreModel::all();
         $CategoryModel = CategoryModel::all();
-        return view('setup', compact('genre', 'GenreModel', 'CategoryModel'));
+        return view('genre', compact('genre', 'GenreModel', 'CategoryModel'));
     }
 
     public function updategenre(Request $request, $id)
@@ -105,7 +107,7 @@ class SetupController extends Controller
         $genre = GenreModel::findOrFail($id);
         $genre->update($request->only('genre'));
 
-        return redirect()->route('setup');
+        return redirect()->route('genre');
     }
 
     public function deletegenre($id)
