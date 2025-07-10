@@ -7,6 +7,8 @@
   <title>Reader's Note</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
   <style>
     .glitch-text {
       position: relative;
@@ -100,7 +102,7 @@
     @include('header')
   </div>
 
- <form id="filter-form" method="GET" action="{{ route('read') }}" class="w-full">
+ <form id="filter-form" x-ref="form" method="GET" action="{{ route('read') }}" class="w-full">
   <div class="w-full flex flex-wrap md:flex-nowrap items-center gap-4 px-4 py-4 bg-black text-white rounded shadow">
 
     <!-- Search Input -->
@@ -122,35 +124,82 @@
       </select>
     </div>
 
-    <!-- Genre Dropdown -->
-    <div class="min-w-[180px]">
-      <select name="genre" id="genre"
-        class="w-full bg-black text-white border border-white rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-white">
-        <option value="">-- Select Genre --</option>
-        @foreach ($GenreModel as $gnr)
-          <option value="{{ $gnr->genre }}" {{ request('genre') == $gnr->genre ? 'selected' : '' }}>
-            {{ $gnr->genre }}
-          </option>
-        @endforeach
-      </select>
+    <!-- Buttons -->
+    <div class="flex gap-2 mt-6 md:mt-0">
+      <button type="submit"
+        class="bg-black text-green-400 border border-white font-bold py-2 px-4 rounded shadow hover:text-green-300 hover:border-green-400">
+        Search
+      </button>
+      <a href="{{ url('/read') }}"
+        class="bg-black text-red-400 border border-white font-bold py-2 px-4 rounded shadow hover:text-red-300 hover:border-red-400">
+        Reset
+      </a>
+    </div>
+  </div>
+
+<!-- Alphabet + Genre Filters Side-by-Side -->
+<div class="w-full mt-4 px-4 py-4 bg-black text-white rounded shadow flex flex-wrap md:flex-nowrap gap-4 text-sm">
+
+  <!-- Alphabet Filter (30%) -->
+  <div class="w-full md:w-2/12"
+       x-data="{ selectedLetter: '{{ request('letter') }}' }">
+    <label class="block font-bold mb-2 text-xs uppercase tracking-wide">Filter by Alphabet</label>
+    <div class="flex flex-wrap gap-1">
+        <!-- Clear Filter Button -->
+      <button type="button"
+        @click="selectedLetter = ''; $refs.letterInput.value = ''; $refs.form.submit()"
+        class="w-14 h-7 text-xs border rounded shadow hover:bg-purple-400 hover:text-black transition">
+        All
+      </button>
+      @foreach (range('A', 'Z') as $char)
+        <button type="button"
+          @click="selectedLetter = '{{ $char }}'; $refs.letterInput.value = '{{ $char }}'; $refs.form.submit()"
+          :class="selectedLetter === '{{ $char }}' 
+            ? 'bg-purple-500 text-white border-purple-400' 
+            : 'bg-black text-white border-white'"
+          class="w-7 h-7 text-xs border rounded shadow hover:bg-purple-400 hover:text-black transition">
+          {{ $char }}
+        </button>
+      @endforeach
+    </div>
+    <input type="hidden" name="letter" x-ref="letterInput" value="{{ request('letter') }}">
+  </div>
+
+  <!-- Genre Filter (70%) -->
+  <div class="w-full md:w-10/12"
+       x-data="{
+         selectedGenres: {{ json_encode(request('genre', [])) }},
+         toggle(genre) {
+           if (this.selectedGenres.includes(genre)) {
+             this.selectedGenres = this.selectedGenres.filter(g => g !== genre);
+           } else {
+             this.selectedGenres.push(genre);
+           }
+         }
+       }">
+    <label class="block font-bold mb-2 text-xs uppercase tracking-wide">Filter by Genre</label>
+    <div class="flex flex-wrap gap-1">
+      @foreach ($GenreModel as $gnr)
+        <button type="button"
+          @click="toggle('{{ $gnr->genre }}')"
+          :class="selectedGenres.includes('{{ $gnr->genre }}') 
+            ? 'bg-blue-500 text-white border-blue-400' 
+            : 'bg-black text-white border-white'"
+          class="px-2 py-1 border rounded text-xs font-semibold shadow hover:bg-blue-400 hover:text-black transition">
+          {{ $gnr->genre }}
+        </button>
+      @endforeach
     </div>
 
-    <!-- Buttons -->
-   <div class="flex gap-2 mt-6 md:mt-0">
-  <button type="submit"
-    class="bg-black text-green-400 border border-white font-bold py-2 px-4 rounded shadow hover:text-green-300 hover:border-green-400">
-    Search
-  </button>
-  <a href="{{ url('/read') }}"
-    class="bg-black text-red-400 border border-white font-bold py-2 px-4 rounded shadow hover:text-red-300 hover:border-red-400">
-    Reset
-  </a>
+    <!-- Hidden inputs for selected genres -->
+    <template x-for="genre in selectedGenres" :key="genre">
+      <input type="hidden" name="genre[]" :value="genre">
+    </template>
+  </div>
 </div>
 
-  </div>
+
 </form>
-
-
 
   <div class="bg-black p-6">
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
@@ -173,8 +222,6 @@
     <i data-lucide="plus" class="w-7 h-7 absolute top-0 left-0 text-purple-400 opacity-0 group-hover:opacity-80 animate-glitch1 pointer-events-none"></i>
   </span>
 </a>
-
-
 
      @foreach ($ReadModel as $read)
   <div class="bg-gray-900 border border-purple-600 rounded-2xl shadow-lg p-4 text-white">
@@ -214,10 +261,10 @@
            class="w-full h-full object-cover transition-transform duration-300 hover:scale-105" />
     </div>
 
-    <h3 class="text-xl font-bold mb-1 truncate">{{ $read->title }}</h3>
-    <p class="text-sm text-purple-400">Chapter: <span class="font-medium text-white">{{ $read->chapter }}</span></p>
-    
-   
+    <h3 class="text-base font-semibold text-white mb-1 truncate">{{ $read->title }}</h3>
+<p class="text-lg text-purple-400 font-bold">
+  Chapter: <span class="text-white">{{ $read->chapter }}</span>
+</p>   
   </div>
 @endforeach
 

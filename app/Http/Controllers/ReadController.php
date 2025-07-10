@@ -33,8 +33,8 @@ class ReadController extends Controller
         'page' => 'nullable|string|max:255',
         'coverphoto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
         'category' => 'nullable|string|max:255',
-        'genre' => 'nullable|array', // 👈 validate as array
-        'genre.*' => 'nullable|string|max:255', // 👈 each value in array
+        'genre' => 'nullable|array',
+        'genre.*' => 'nullable|string|max:255', 
         'author' => 'nullable|string|max:255',
         'status' => 'nullable|string|max:255',
     ]);
@@ -42,8 +42,6 @@ class ReadController extends Controller
     if ($request->hasFile('coverphoto')) {
         $validatedData['coverphoto'] = $request->file('coverphoto')->store('coverphotos', 'public');
     }
-
-    // Convert genre array to comma-separated string before saving
     if (isset($validatedData['genre'])) {
         $validatedData['genre'] = implode(', ', $validatedData['genre']);
     }
@@ -60,18 +58,17 @@ class ReadController extends Controller
     $CategoryModel = CategoryModel::all();
     $GenreModel = GenreModel::all();
 
-    // Start building query
     $query = ReadModel::query();
 
     // Apply search filters
-    if ($request->has('search') && $request->search) {
+    if ($request->filled('search')) {
         $query->where(function ($q) use ($request) {
             $q->where('title', 'like', '%' . $request->search . '%')
               ->orWhere('volume', 'like', '%' . $request->search . '%')
               ->orWhere('chapter', 'like', '%' . $request->search . '%')
               ->orWhere('page', 'like', '%' . $request->search . '%')
               ->orWhere('category', 'like', '%' . $request->search . '%')
-              ->orWhere('genre', 'like', '%' . $request->search . '%')
+              ->orWhere('genre', 'like', '%' . $request->search . '%') // For loose genre search via keyword
               ->orWhere('author', 'like', '%' . $request->search . '%')
               ->orWhere('status', 'like', '%' . $request->search . '%')
               ->orWhere('created_at', 'like', '%' . $request->search . '%')
@@ -79,23 +76,36 @@ class ReadController extends Controller
         });
     }
 
-    // Optional filters for category and genre
+    // Filter by exact category if selected
     if ($request->filled('category')) {
         $query->where('category', $request->category);
     }
 
+    // Filter by all selected genres (must all exist in genre string)
     if ($request->filled('genre')) {
-        $query->where('genre', $request->genre);
+        $genres = is_array($request->genre) ? $request->genre : [$request->genre];
+
+        foreach ($genres as $genre) {
+            $query->where('genre', 'like', '%' . $genre . '%');
+        }
     }
 
-    // Sorting
+    if ($request->filled('letter')) {
+    $query->where('title', 'like', $request->letter . '%');
+}
+
+
+    // Sort alphabetically by title
     $query->orderBy('title', 'asc');
 
-    // Execute the query
+    // Fetch the results
     $ReadModel = $query->get();
 
+    // Return view with data
     return view('read', compact('ReadModel', 'CategoryModel', 'GenreModel'));
 }
+
+
 
 
     // DELETE
