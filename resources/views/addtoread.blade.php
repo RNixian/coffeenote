@@ -70,24 +70,34 @@
 
   <!-- Page Container -->
   <div>
-    <h2 class="glitch mb-10 text-center text-[70px]" data-text="Add New Read">Add New Read</h2>
+   
 
     <form action="{{ route('addtoread.store') }}" method="POST" enctype="multipart/form-data" class="w-full h-full p-6 bg-gray-900 rounded-xl space-y-6">
   @csrf
-
+ <h2 class="glitch mb-10 text-center text-[70px]" data-text="Add New To Read">Add New To Read</h2>
   <div class="flex flex-col md:flex-row gap-6">
     <!-- 1st Container - Left (30%) -->
-    <div class="w-full md:w-1/3 bg-gray-800 p-6 rounded-xl border border-purple-600 space-y-4">
+    <div class="w-full md:w-1/3 bg-gray-800 p-6 rounded-xl border border-purple-600 space-y-4"> 
       <div>
         <label for="title" class="block font-bold text-white">Title</label>
         <textarea name="title" id="title" class="w-full h-40 px-3 py-2 bg-black border border-blue-500 rounded text-white focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"></textarea>
       </div>
-
+<div class="flex flex-col md:flex-row gap-2">
       <div>
         <label for="chapter" class="block font-bold text-white">Chapter</label>
         <input type="text" name="chapter" id="chapter" class="w-full px-3 py-2 bg-black border border-pink-500 rounded text-white focus:outline-none focus:ring-2 focus:ring-pink-400">
       </div>
 
+<div>
+  <label for="status" class="block font-bold mb-1">Status</label>
+    <select name="status" id="status" class="w-full px-3 py-2 bg-black border border-pink-500 rounded text-white focus:outline-none focus:ring-2 focus:ring-pink-400">
+      <option value="ongoing">Ongoing</option>
+      <option value="completed">Completed</option>
+      <option value="archived">Archived</option>
+    </select>
+</div>
+
+</div>
       <div>
         <label for="coverphoto" class="block font-bold text-white">Cover Photo</label>
         <input type="file" name="coverphoto" id="coverphoto" accept="image/*" onchange="previewCover(event)" class="w-full text-white">
@@ -130,7 +140,7 @@
       </div>
 
       <!-- Row 3: Genre Buttons -->
-      <div x-data="{
+     <div x-data="{
   selected: [],
   toggle(genre) {
     if (this.selected.includes(genre)) {
@@ -140,15 +150,15 @@
     }
   }
 }">
-  <label class="block font-bold text-white mb-2">Genre</label>
+  <label class="block font-bold text-white text-sm mb-1">Genre</label>
 
   <div class="flex flex-wrap gap-2">
     @foreach ($GenreModel as $gnr)
       <button
         type="button"
-        class="px-4 py-2 rounded border text-sm font-medium transition-all"
+        class="px-2 py-1 rounded border text-xs font-medium transition-all"
         :class="selected.includes('{{ $gnr->genre }}') 
-          ? 'bg-black text-white border-gray-300' 
+          ? 'bg-black text-white border-gray-500' 
           : 'bg-gray-800 text-gray-300 border-gray-600'"
         @click="toggle('{{ $gnr->genre }}')"
       >
@@ -164,10 +174,7 @@
     </template>
   </div>
 </div>
-
-
-      <!-- Hidden Status -->
-      <input type="hidden" name="status" id="status" value="ongoing">
+    
     </div>
   </div>
 

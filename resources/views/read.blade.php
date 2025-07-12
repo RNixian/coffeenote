@@ -233,26 +233,33 @@
     <i data-lucide="trash" class="w-4 h-4"></i>
   </a>
 
-<a href="javascript:void(0);"
-   class="btn-extended-edit bg-green-500 hover:bg-green-600 text-white font-bold rounded w-8 h-8 flex items-center justify-center"
-   data-id="{{ $read->id }}"
-   data-title="{{ $read->title }}"
-   data-volume="{{ $read->volume }}"
-   data-chapter="{{ $read->chapter }}"
-   data-page="{{ $read->page }}"
-   data-author="{{ $read->author }}"
-   data-category="{{ $read->category }}"
-   data-genre="{{ $read->genre }}"
-   data-status="{{ $read->status }}">
+@php
+  $params = [
+    'id' => $read->id,
+    'title' => $read->title,
+    'volume' => $read->volume,
+    'chapter' => $read->chapter,
+    'page' => $read->page,
+    'author' => $read->author,
+    'category' => $read->category,
+    'genre' => $read->genre,
+    'status' => $read->status,
+  ];
+@endphp
 
+<a href="{{ url('fullviewedit') . '?' . http_build_query($params) }}"
+   class="btn-extended-edit bg-green-500 hover:bg-green-600 text-white font-bold rounded w-8 h-8 flex items-center justify-center">
    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
 </a>
+
+
 
 
   <button class="btn-edit bg-blue-500 hover:bg-blue-600 text-white font-bold rounded w-8 h-8 flex items-center justify-center"
           data-id="{{ $read->id }}"
           data-title="{{ $read->title }}"
-          data-chapter="{{ $read->chapter }}">
+          data-chapter="{{ $read->chapter }}"
+          data-coverphoto="{{ $read->coverphoto }}">
     <i data-lucide="pencil" class="w-4 h-4"></i>
   </button>
 </div>
@@ -280,237 +287,102 @@
     <button id="closeModal"
             class="absolute top-2 right-2 text-white hover:text-red-400 text-2xl font-bold">&times;</button>
 
-    <h2 id="modal-title" class="text-3xl font-bold mb-6 text-purple-400">Update Note</h2>
+    <h2 id="modal-title" class="text-center text-3xl font-bold mb-6 text-purple-400">Update Note</h2>
 
-    <form id="updateForm" action="{{ route('read.update', ['id' => '__ID__']) }}" method="POST" enctype="multipart/form-data">
-      @csrf
-      @method('PUT')
-      <input type="hidden" name="id" id="note_id" value="">
+   <form id="updateForm" action="{{ route('read.update', ['id' => '__ID__']) }}" method="POST" enctype="multipart/form-data">
+    @csrf
+    @method('PUT')
 
-      <div class="mb-4">
-        <label for="edit_title" class="block font-bold mb-2 text-white">Title</label>
-        <input type="text" name="title" id="edit_title"
-               class="w-full px-4 py-2 bg-black text-white border border-purple-500 rounded focus:outline-none focus:ring-2 focus:ring-purple-600"
-               required>
-      </div>
+    <!-- Hidden ID -->
+    <input type="hidden" name="id" id="note_id" value="">
 
-      <div class="mb-4">
-        <label for="edit_chapter" class="block font-bold mb-2 text-white">Chapter</label>
-        <input type="text" name="chapter" id="edit_chapter"
-               class="w-full px-4 py-2 bg-black text-white border border-purple-500 rounded focus:outline-none focus:ring-2 focus:ring-purple-600"
-               required autofocus>
-      </div>
+    <!-- Two-column Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-      <div class="mb-4">
-        <label for="edit_coverphoto" class="block font-bold mb-2 text-white">Cover Photo</label>
-        <input type="file" name="coverphoto" id="edit_coverphoto"
-               class="w-full px-4 py-2 bg-black text-white border border-purple-500 rounded focus:outline-none focus:ring-2 focus:ring-purple-600"
-               accept="image/jpeg,image/png,image/jpg">
-      </div>
+        <!-- Left Column: Title + Chapter -->
+        <div>
+            <!-- Title Display -->
+            <div class="mb-4">
+                <label class="block font-bold text-white mb-1">Title:</label>
+                <p id="note_title" class="text-xl text-purple-300 font-semibold"></p>
+            </div>
 
-      <div class="flex justify-end">
+            <!-- Chapter Input -->
+            <div class="mb-4">
+                <label for="edit_chapter" class="block font-bold mb-2 text-white">Chapter</label>
+                <input type="text" name="chapter" id="edit_chapter"
+                       class="w-full px-6 py-4 text-2xl bg-black text-white border border-purple-500 rounded focus:outline-none focus:ring-2 focus:ring-purple-600"
+                       required autofocus>
+            </div>
+             <div class="flex justify-center mt-6">
         <button type="submit"
                 class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2 rounded-lg transition-all duration-300">
-          Update
+            Update
         </button>
-      </div>
-    </form>
+    </div>
+        </div>
+
+        <!-- Right Column: Cover Photo -->
+        <div class="flex justify-center items-start">
+            <div class="text-center">
+                <label class="block font-bold text-white mb-2">Cover Photo:</label>
+                <img id="note_coverphoto" src="" alt="Cover Photo"
+                     class="w-64 h-64 object-cover border-2 border-purple-500 rounded shadow-md">
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Submit Button -->
+   
+</form>
   </div>
 </div>
+ <script>
+  lucide.createIcons();
 
-<!-- Extended Update Modal -->
-<div id="extendedUpdateModal" role="dialog" aria-modal="true" aria-labelledby="extended-modal-title"
-     class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 hidden z-50 font-mono">
-  <div class="bg-gray-900 border border-purple-600 rounded-2xl shadow-2xl w-full max-w-3xl p-6 relative text-white">
+  const updateModal = document.getElementById('updateModal');
+  const closeModal = document.getElementById('closeModal');
+  const updateForm = document.getElementById('updateForm');
+  const originalAction = updateForm.action;
 
-    <!-- Close Button -->
-    <button id="closeExtendedModal"
-            class="absolute top-2 right-2 text-white hover:text-red-400 text-2xl font-bold">&times;</button>
-
-    <h2 id="extended-modal-title" class="text-3xl font-bold mb-6 text-purple-400">Edit Extended Note</h2>
-
-    <form id="extendedUpdateForm" action="{{ route('read.update', ['id' => '__ID__']) }}" method="POST" enctype="multipart/form-data">
-      @csrf
-      @method('PUT')
-      <input type="hidden" name="id" id="extended_note_id" value="">
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <!-- Title -->
-        <div>
-          <label for="extended_title" class="block font-bold mb-1">Title</label>
-          <input type="text" name="title" id="extended_title" class="w-full px-4 py-2 bg-black text-white border border-purple-500 rounded focus:ring-purple-600" required autofocus>
-        </div>
-
-        <!-- Volume -->
-        <div>
-          <label for="extended_volume" class="block font-bold mb-1">Volume</label>
-          <input type="text" name="volume" id="extended_volume" class="w-full px-4 py-2 bg-black text-white border border-purple-500 rounded">
-        </div>
-
-        <!-- Chapter -->
-        <div>
-          <label for="extended_chapter" class="block font-bold mb-1">Chapter</label>
-          <input type="text" name="chapter" id="extended_chapter" class="w-full px-4 py-2 bg-black text-white border border-purple-500 rounded">
-        </div>
-
-        <!-- Page -->
-        <div>
-          <label for="extended_page" class="block font-bold mb-1">Page</label>
-          <input type="text" name="page" id="extended_page" class="w-full px-4 py-2 bg-black text-white border border-purple-500 rounded">
-        </div>
-
-        <!-- Author -->
-        <div>
-          <label for="extended_author" class="block font-bold mb-1">Author</label>
-          <input type="text" name="author" id="extended_author" class="w-full px-4 py-2 bg-black text-white border border-purple-500 rounded">
-        </div>
-
-        <!-- Cover Photo -->
-        <div>
-          <label for="extended_coverphoto" class="block font-bold mb-1">Cover Photo</label>
-          <input type="file" name="coverphoto" id="extended_coverphoto" accept="image/jpeg,image/png,image/jpg,image/gif"
-                 class="w-full px-4 py-2 bg-black text-white border border-purple-500 rounded">
-        </div>
-
-        <!-- Category Dropdown -->
-       <div>
-          <label for="extended_category" class="block font-bold">Category</label>
-          <select name="category" id="extended_category" class="w-full bg-black border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
-            <option value="">-- Select Category --</option>
-            @foreach ($CategoryModel as $ctgry)
-              <option value="{{ $ctgry->category }}" {{ request('category') == $ctgry->category ? 'selected' : '' }}>{{ $ctgry->category }}</option>
-            @endforeach
-          </select>
-        </div>
-        <!-- Genre Dropdown -->
-        <div>
-          <label for="extended_genre" class="block font-bold">Genre</label>
-          <select name="genre" id="extended_genre" class="w-full bg-black border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
-            <option value="">-- Select Genre --</option>
-            @foreach ($GenreModel as $gnr)
-              <option value="{{ $gnr->genre }}" {{ request('genre') == $gnr->genre ? 'selected' : '' }}>{{ $gnr->genre }}</option>
-            @endforeach
-          </select>
-        </div>
-
-        <!-- Status Dropdown -->
-        <div class="md:col-span-2">
-          <label for="extended_status" class="block font-bold mb-1">Status</label>
-          <select name="status" id="extended_status"
-                  class="w-full px-4 py-2 bg-black text-white border border-purple-500 rounded">
-            <option value="">Select Status</option>
-            <option value="ongoing">Ongoing</option>
-            <option value="completed">Completed</option>
-            <option value="archived">Archived</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="flex justify-end mt-6">
-        <button type="submit"
-                class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2 rounded-lg transition-all duration-300">
-          Save Changes
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
-
-
-
-
-  <script>
-    lucide.createIcons();
-
-    const updateModal = document.getElementById('updateModal');
-    const closeModal = document.getElementById('closeModal');
-    const updateForm = document.getElementById('updateForm');
-    const originalAction = updateForm.action;
-
-    document.querySelectorAll('.btn-edit').forEach(button => {
-      button.addEventListener('click', function () {
-        const id = this.dataset.id;
-        const title = this.dataset.title;
-        const chapter = this.dataset.chapter;
-
-        // Update form action and inputs
-        updateForm.action = originalAction.replace('__ID__', id);
-        document.getElementById('note_id').value = id;
-        document.getElementById('edit_title').value = title;
-        document.getElementById('edit_chapter').value = chapter;
-
-        document.getElementById('updateModal').classList.remove('hidden');
-setTimeout(() => {
-  document.getElementById('edit_chapter').focus();
-}, 100); // slight delay ensures element is rendered before focus
-
-        document.body.classList.add('overflow-hidden');
-      });
-    });
-
-    closeModal.addEventListener('click', function () {
-      updateModal.classList.add('hidden');
-      updateForm.action = originalAction;
-      document.body.classList.remove('overflow-hidden');
-    });
-
-    window.addEventListener('click', function (e) {
-      if (e.target === updateModal) {
-        updateModal.classList.add('hidden');
-        updateForm.action = originalAction;
-        document.body.classList.remove('overflow-hidden');
-      }
-    });
-  </script>
-<script>
-  const extendedModal = document.getElementById('extendedUpdateModal');
-  const closeExtendedModal = document.getElementById('closeExtendedModal');
-  const extendedForm = document.getElementById('extendedUpdateForm');
-  const extendedAction = extendedForm.action;
-
-  document.querySelectorAll('.btn-extended-edit').forEach(button => {
+  document.querySelectorAll('.btn-edit').forEach(button => {
     button.addEventListener('click', function () {
-      const id = this.dataset.id;
-      const title = this.dataset.title || '';
-      const volume = this.dataset.volume || '';
-      const chapter = this.dataset.chapter || '';
-      const page = this.dataset.page || '';
-      const author = this.dataset.author || '';
-      const category = this.dataset.category || '';
-      const genre = this.dataset.genre || '';
-      const status = this.dataset.status || '';
+    const id = this.dataset.id;
+const title = this.dataset.title;
+const chapter = this.dataset.chapter;
+const coverphoto = this.dataset.coverphoto; // new line
 
-      // Fill form fields
-      extendedForm.action = extendedAction.replace('__ID__', id);
-      document.getElementById('extended_note_id').value = id;
-      document.getElementById('extended_title').value = title;
-      document.getElementById('extended_volume').value = volume;
-      document.getElementById('extended_chapter').value = chapter;
-      document.getElementById('extended_page').value = page;
-      document.getElementById('extended_author').value = author;
-      document.getElementById('extended_category').value = category;
-      document.getElementById('extended_genre').value = genre;
-      document.getElementById('extended_status').value = status;
+// Update form action and inputs
+updateForm.action = originalAction.replace('__ID__', id);
+document.getElementById('note_id').value = id;
+document.getElementById('note_title').textContent = title;
+document.getElementById('edit_chapter').value = chapter;
 
-      extendedModal.classList.remove('hidden');
+// Set cover photo preview
+document.getElementById('note_coverphoto').src =
+  coverphoto ? 'storage/' + coverphoto : 'images/default.png';
+
+
+      updateModal.classList.remove('hidden');
       setTimeout(() => {
-        document.getElementById('extended_title').focus();
-      }, 100);
+        document.getElementById('edit_chapter').focus();
+      }, 100); // slight delay ensures element is rendered before focus
 
       document.body.classList.add('overflow-hidden');
     });
   });
 
-  closeExtendedModal.addEventListener('click', function () {
-    extendedModal.classList.add('hidden');
-    extendedForm.action = extendedAction;
+  closeModal.addEventListener('click', function () {
+    updateModal.classList.add('hidden');
+    updateForm.action = originalAction;
     document.body.classList.remove('overflow-hidden');
   });
 
   window.addEventListener('click', function (e) {
-    if (e.target === extendedModal) {
-      extendedModal.classList.add('hidden');
-      extendedForm.action = extendedAction;
+    if (e.target === updateModal) {
+      updateModal.classList.add('hidden');
+      updateForm.action = originalAction;
       document.body.classList.remove('overflow-hidden');
     }
   });

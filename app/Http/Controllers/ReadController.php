@@ -43,7 +43,7 @@ class ReadController extends Controller
         $validatedData['coverphoto'] = $request->file('coverphoto')->store('coverphotos', 'public');
     }
     if (isset($validatedData['genre'])) {
-        $validatedData['genre'] = implode(', ', $validatedData['genre']);
+        $validatedData['genre'] = implode(',', $validatedData['genre']);
     }
 
     ReadModel::create($validatedData);
@@ -64,11 +64,8 @@ class ReadController extends Controller
     if ($request->filled('search')) {
         $query->where(function ($q) use ($request) {
             $q->where('title', 'like', '%' . $request->search . '%')
-              ->orWhere('volume', 'like', '%' . $request->search . '%')
-              ->orWhere('chapter', 'like', '%' . $request->search . '%')
-              ->orWhere('page', 'like', '%' . $request->search . '%')
               ->orWhere('category', 'like', '%' . $request->search . '%')
-              ->orWhere('genre', 'like', '%' . $request->search . '%') // For loose genre search via keyword
+              ->orWhere('genre', 'like', '%' . $request->search . '%')
               ->orWhere('author', 'like', '%' . $request->search . '%')
               ->orWhere('status', 'like', '%' . $request->search . '%')
               ->orWhere('created_at', 'like', '%' . $request->search . '%')
@@ -127,9 +124,7 @@ class ReadController extends Controller
     public function updatenote(Request $request, $id)
     {
         $request->validate([
-            'title' => 'required|string|max:255',
             'chapter' => 'required|string|max:255',
-            'coverphoto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
         $read = ReadModel::find($id);
@@ -137,20 +132,94 @@ class ReadController extends Controller
         if (!$read) {
             return redirect()->route('read')->with('error', 'Note not found.');
         }
-
-        $read->title = $request->input('title');
         $read->chapter = $request->input('chapter');
-
-        if ($request->hasFile('coverphoto')) {
-            if ($read->coverphoto && Storage::disk('public')->exists($read->coverphoto)) {
-                Storage::disk('public')->delete($read->coverphoto);
-            }
-
-            $read->coverphoto = $request->file('coverphoto')->store('coverphotos', 'public');
-        }
 
         $read->save();
 
         return redirect()->route('read')->with('success', 'Note updated successfully.');
     }
+
+    public function fullviewedit(Request $request)
+{
+    $CategoryModel = CategoryModel::all();
+    $GenreModel = GenreModel::all();
+
+    $note = ReadModel::findOrFail($request->id); // Load existing note
+
+    return view('fullviewedit', [
+        'CategoryModel' => $CategoryModel,
+        'GenreModel' => $GenreModel,
+        'note' => $note,
+        'request' => $request,
+    ]);
 }
+
+
+
+public function fulledit(Request $request)
+{
+    $categories = CategoryModel::all();
+    $genres = GenreModel::all();
+
+    $status = ['ongoing', 'archived', 'completed'];
+
+    return view('fullviewedit', [
+        'CategoryModel' => $categories,
+        'GenreModel' => $genres,
+        'status' => $status,
+        'request' => $request,
+    ]);
+}
+
+
+    // Update the note
+  public function fullupdate(Request $request, $id)
+{
+    $request->validate([
+        'title' => 'required|string|max:255',
+        'volume' => 'nullable|string|max:100',
+        'chapter' => 'nullable|string|max:100',
+        'page' => 'nullable|string|max:100',
+        'author' => 'nullable|string|max:255',
+        'category' => 'nullable|string',
+        'genre' => 'nullable|array',
+        'genre.*' => 'string',
+        'status' => 'nullable|string',
+        'coverphoto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+    ]);
+
+    $note = ReadModel::findOrFail($id);
+
+    // Update basic fields
+    $note->title = $request->title;
+    $note->volume = $request->volume;
+    $note->chapter = $request->chapter;
+    $note->page = $request->page;
+    $note->author = $request->author;
+    $note->category = $request->category;
+    $note->status = $request->status;
+
+    // Update genre
+    $genreArray = $request->input('genre', []);
+    $note->genre = implode(',', $genreArray);
+
+    // Update cover photo
+    if ($request->hasFile('coverphoto')) {
+        // Delete old image if it exists
+        if ($note->coverphoto && \Storage::exists($note->coverphoto)) {
+            \Storage::delete($note->coverphoto);
+        }
+
+        // Store new file using same logic as storetoread()
+        $note->coverphoto = $request->file('coverphoto')->store('coverphotos', 'public');
+    }
+
+    $note->save();
+
+    return redirect()->route('read')->with('success', 'Note updated successfully.');
+}
+
+
+}
+
+
