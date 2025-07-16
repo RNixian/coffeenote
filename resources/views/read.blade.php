@@ -251,10 +251,6 @@
    class="btn-extended-edit bg-green-500 hover:bg-green-600 text-white font-bold rounded w-8 h-8 flex items-center justify-center">
    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
 </a>
-
-
-
-
   <button class="btn-edit bg-blue-500 hover:bg-blue-600 text-white font-bold rounded w-8 h-8 flex items-center justify-center"
           data-id="{{ $read->id }}"
           data-title="{{ $read->title }}"

@@ -219,7 +219,25 @@ public function fulledit(Request $request)
     return redirect()->route('read')->with('success', 'Note updated successfully.');
 }
 
+public function dashread() {
+    $ReadModel = ReadModel::orderBy('created_at', 'desc')->take(5)->get();
+    $ReadModels = ReadModel::orderBy('updated_at', 'desc')->take(5)->get();
+    $totalnotes = ReadModel::count();
+    $totalongoing = ReadModel::where('status', 'ongoing')->count();
+    $totalarchived = ReadModel::where('status', 'archived')->count();
+    $totalcompleted = ReadModel::where('status', 'completed')->count();
+
+    return view('dashboard', compact('totalnotes', 'totalarchived', 'totalcompleted', 'totalongoing', 'ReadModel', 'ReadModels'));
+}
+
+public function readersgraph(Request $request)
+{
+
+
+
+
 
 }
 
 
+}

@@ -6,7 +6,7 @@ use App\Http\Controllers\ReadController;
 use App\Http\Controllers\UserController;
 
 // front view
-Route::get('/', [SetupController::class, 'index'])->name('index');
+Route::get('/index', [SetupController::class, 'index'])->name('index');
 
 // headers view
 Route::get('/header', [SetupController::class, 'header'])->name('header');
@@ -57,6 +57,7 @@ Route::get('/delete/{id}', [ReadController::class, 'deletenote'])->name('delete'
 Route::put('/full-update/{id}', [ReadController::class, 'fullupdate'])->name('fullupdate');
 });
 
+Route::get('/', [ReadController::class, 'dashread'])->name('dashread');
 
 
 
