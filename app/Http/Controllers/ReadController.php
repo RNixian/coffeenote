@@ -31,7 +31,7 @@ class ReadController extends Controller
         'volume' => 'nullable|string|max:255',
         'chapter' => 'nullable|string|max:255',
         'page' => 'nullable|string|max:255',
-        'coverphoto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+        'coverphoto' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:102400',
         'category' => 'nullable|string|max:255',
         'genre' => 'nullable|array',
         'genre.*' => 'nullable|string|max:255', 
@@ -185,7 +185,7 @@ public function fulledit(Request $request)
         'genre' => 'nullable|array',
         'genre.*' => 'string',
         'status' => 'nullable|string',
-        'coverphoto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+        'coverphoto' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:102400',
     ]);
 
     $note = ReadModel::findOrFail($id);
