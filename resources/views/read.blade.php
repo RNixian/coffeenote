@@ -202,77 +202,76 @@
 </form>
 
   <div class="bg-black p-6">
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-   <a href="{{ url('/add-to-read') }}" 
-   class="relative inline-flex items-center justify-center px-6 py-3 font-bold text-white border-2 border-purple-500 rounded-md overflow-hidden group">
-  
-  <!-- Purple animated shadow background -->
-  <span class="absolute inset-0 w-full h-full transition-transform duration-300 ease-out transform translate-x-1 translate-y-1 bg-purple-600 group-hover:-translate-x-0 group-hover:-translate-y-0"></span>
-  
-  <!-- Black main background -->
-  <span class="absolute inset-0 w-full h-full bg-black border-2 border-white group-hover:opacity-0"></span>
-  
-  <!-- Glitchy Icon Container -->
-  <span class="relative flex items-center justify-center">
-    <!-- Main icon -->
-    <i data-lucide="plus" class="w-7 h-7 z-10 text-white transition-all duration-100"></i>
+  <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 gap-6">
+    
+    <!-- Add New Button -->
+    <a href="{{ url('/add-to-read') }}" 
+      class="relative inline-flex items-center justify-center px-6 py-3 font-bold text-white border-2 border-purple-500 rounded-md overflow-hidden group">
+      <span class="absolute inset-0 w-full h-full transition-transform duration-300 ease-out transform translate-x-1 translate-y-1 bg-purple-600 group-hover:-translate-x-0 group-hover:-translate-y-0"></span>
+      <span class="absolute inset-0 w-full h-full bg-black border-2 border-white group-hover:opacity-0"></span>
+      <span class="relative flex items-center justify-center">
+        <i data-lucide="plus" class="w-7 h-7 z-10 text-white transition-all duration-100"></i>
+      </span>
+    </a>
 
-    <!-- Glitch shadows (only visible on hover) -->
-    <i data-lucide="plus" class="w-7 h-7 absolute top-0 left-0 text-pink-500 opacity-0 group-hover:opacity-80 animate-glitch2 pointer-events-none"></i>
-    <i data-lucide="plus" class="w-7 h-7 absolute top-0 left-0 text-purple-400 opacity-0 group-hover:opacity-80 animate-glitch1 pointer-events-none"></i>
-  </span>
-</a>
+    @foreach ($ReadModel as $read)
+    <div class="bg-gray-900 border border-purple-600 rounded-2xl shadow-lg p-4 text-white">
+      
+      <div class="w-full h-50 overflow-hidden rounded-xl mb-4 relative">
+        <!-- Top Right Buttons -->
+        <div class="absolute top-2 right-2 flex flex-col gap-2 z-10">
+          <!-- Delete -->
+          <a href="{{ route('read.delete', $read->id) }}" 
+            class="bg-red-500 hover:bg-red-600 text-white font-bold rounded w-8 h-8 flex items-center justify-center">
+            <i data-lucide="trash" class="w-4 h-4"></i>
+          </a>
 
-     @foreach ($ReadModel as $read)
-  <div class="bg-gray-900 border border-purple-600 rounded-2xl shadow-lg p-4 text-white">
-    <div class="w-full h-48 overflow-hidden rounded-xl mb-4 relative">
-      <!-- Container for vertical button alignment -->
-      <div class="absolute top-2 right-2 flex flex-col gap-2 z-10">
-  <a href="{{ route('read.delete', $read->id) }}" 
-     class="bg-red-500 hover:bg-red-600 text-white font-bold rounded w-8 h-8 flex items-center justify-center">
-    <i data-lucide="trash" class="w-4 h-4"></i>
-  </a>
+          <!-- Edit (Full View) -->
+          @php
+            $params = [
+              'id' => $read->id,
+              'title' => $read->title,
+              'volume' => $read->volume,
+              'chapter' => $read->chapter,
+              'page' => $read->page,
+              'author' => $read->author,
+              'category' => $read->category,
+              'genre' => $read->genre,
+              'status' => $read->status,
+            ];
+          @endphp
+          <a href="{{ url('fullviewedit') . '?' . http_build_query($params) }}"
+            class="btn-extended-edit bg-green-500 hover:bg-green-600 text-white font-bold rounded w-8 h-8 flex items-center justify-center">
+            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+          </a>
 
-@php
-  $params = [
-    'id' => $read->id,
-    'title' => $read->title,
-    'volume' => $read->volume,
-    'chapter' => $read->chapter,
-    'page' => $read->page,
-    'author' => $read->author,
-    'category' => $read->category,
-    'genre' => $read->genre,
-    'status' => $read->status,
-  ];
-@endphp
+          <!-- Quick Edit -->
+          <button class="btn-edit bg-blue-500 hover:bg-blue-600 text-white font-bold rounded w-8 h-8 flex items-center justify-center"
+                  data-id="{{ $read->id }}"
+                  data-title="{{ $read->title }}"
+                  data-chapter="{{ $read->chapter }}"
+                  data-coverphoto="{{ $read->coverphoto }}">
+            <i data-lucide="pencil" class="w-4 h-4"></i>
+          </button>
+        </div>
 
-<a href="{{ url('fullviewedit') . '?' . http_build_query($params) }}"
-   class="btn-extended-edit bg-green-500 hover:bg-green-600 text-white font-bold rounded w-8 h-8 flex items-center justify-center">
-   <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-</a>
-  <button class="btn-edit bg-blue-500 hover:bg-blue-600 text-white font-bold rounded w-8 h-8 flex items-center justify-center"
-          data-id="{{ $read->id }}"
-          data-title="{{ $read->title }}"
-          data-chapter="{{ $read->chapter }}"
-          data-coverphoto="{{ $read->coverphoto }}">
-    <i data-lucide="pencil" class="w-4 h-4"></i>
-  </button>
+        <!-- Cover Image (Portrait) -->
+        <img src="{{ asset($read->coverphoto ? 'storage/' . $read->coverphoto : 'images/default.png') }}"
+             alt="{{ $read->title }}"
+             class="w-full h-full object-cover aspect-[2/3] transition-transform duration-300 hover:scale-105" />
+      </div>
+
+      <!-- Title and Chapter -->
+      <h3 class="text-sm font-semibold text-white mb-1 truncate leading-tight">{{ $read->title }}</h3>
+      <p class="text-base text-purple-400 font-bold">
+        Chapter: <span class="text-white">{{ $read->chapter }}</span>
+      </p>
+    </div>
+    @endforeach
+
+  </div>
 </div>
-      <img src="{{ asset($read->coverphoto ? 'storage/' . $read->coverphoto : 'images/default.png') }}"
-           alt="{{ $read->title }}"
-           class="w-full h-full object-cover transition-transform duration-300 hover:scale-105" />
-    </div>
 
-    <h3 class="text-base font-semibold text-white mb-1 truncate">{{ $read->title }}</h3>
-<p class="text-lg text-purple-400 font-bold">
-  Chapter: <span class="text-white">{{ $read->chapter }}</span>
-</p>   
-  </div>
-@endforeach
-
-    </div>
-  </div>
 
   <!-- Modal -->
 <div id="updateModal" role="dialog" aria-modal="true" aria-labelledby="modal-title"
