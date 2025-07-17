@@ -60,7 +60,7 @@ class ReadController extends Controller
 
     $query = ReadModel::query();
 
-    // Apply search filters
+  
     if ($request->filled('search')) {
         $query->where(function ($q) use ($request) {
             $q->where('title', 'like', '%' . $request->search . '%')
@@ -73,12 +73,11 @@ class ReadController extends Controller
         });
     }
 
-    // Filter by exact category if selected
     if ($request->filled('category')) {
         $query->where('category', $request->category);
     }
 
-    // Filter by all selected genres (must all exist in genre string)
+   
     if ($request->filled('genre')) {
         $genres = is_array($request->genre) ? $request->genre : [$request->genre];
 
@@ -91,14 +90,8 @@ class ReadController extends Controller
     $query->where('title', 'like', $request->letter . '%');
 }
 
-
-    // Sort alphabetically by title
     $query->orderBy('title', 'asc');
-
-    // Fetch the results
     $ReadModel = $query->get();
-
-    // Return view with data
     return view('read', compact('ReadModel', 'CategoryModel', 'GenreModel'));
 }
 
@@ -110,7 +103,6 @@ class ReadController extends Controller
     {
         $ReadModel = ReadModel::findOrFail($id);
 
-        // Optionally delete cover photo from storage
         if ($ReadModel->coverphoto && Storage::disk('public')->exists($ReadModel->coverphoto)) {
             Storage::disk('public')->delete($ReadModel->coverphoto);
         }
@@ -144,7 +136,7 @@ class ReadController extends Controller
     $CategoryModel = CategoryModel::all();
     $GenreModel = GenreModel::all();
 
-    $note = ReadModel::findOrFail($request->id); // Load existing note
+    $note = ReadModel::findOrFail($request->id); 
 
     return view('fullviewedit', [
         'CategoryModel' => $CategoryModel,
@@ -190,7 +182,7 @@ public function fulledit(Request $request)
 
     $note = ReadModel::findOrFail($id);
 
-    // Update basic fields
+
     $note->title = $request->title;
     $note->volume = $request->volume;
     $note->chapter = $request->chapter;
@@ -199,18 +191,17 @@ public function fulledit(Request $request)
     $note->category = $request->category;
     $note->status = $request->status;
 
-    // Update genre
+    
     $genreArray = $request->input('genre', []);
     $note->genre = implode(',', $genreArray);
 
-    // Update cover photo
+   
     if ($request->hasFile('coverphoto')) {
         // Delete old image if it exists
         if ($note->coverphoto && \Storage::exists($note->coverphoto)) {
             \Storage::delete($note->coverphoto);
         }
 
-        // Store new file using same logic as storetoread()
         $note->coverphoto = $request->file('coverphoto')->store('coverphotos', 'public');
     }
 
@@ -229,15 +220,5 @@ public function dashread() {
 
     return view('dashboard', compact('totalnotes', 'totalarchived', 'totalcompleted', 'totalongoing', 'ReadModel', 'ReadModels'));
 }
-
-public function readersgraph(Request $request)
-{
-
-
-
-
-
-}
-
 
 }
