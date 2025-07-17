@@ -107,7 +107,7 @@
   <!-- Row 1: Search, Category, Buttons -->
   <div class="w-full flex flex-wrap md:flex-nowrap items-center gap-2 px-4 py-2 bg-black text-white rounded shadow">
     <!-- Search Input -->
-    <input type="text" name="search" value="{{ request('search') }}" placeholder="Search..."
+    <input type="text" name="search" value="{{ request('search', session('search')) }}" placeholder="Search..."
       class="flex-grow bg-black text-white shadow border border-white rounded py-1 px-2 focus:outline-none focus:ring-2 focus:ring-white text-sm font-bold" />
 
     <input type="hidden" name="out_cat" id="out_cat" value="{{ request('out_cat') }}">
@@ -118,7 +118,7 @@
         class="w-full bg-black text-white border border-white rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-white">
         <option value="">-- Category --</option>
         @foreach ($CategoryModel as $ctgry)
-          <option value="{{ $ctgry->category }}" {{ request('category') == $ctgry->category ? 'selected' : '' }}>
+          <option value="{{ $ctgry->category }}" {{ request('category', session('category')) == $ctgry->category ? 'selected' : '' }}>
             {{ $ctgry->category }}
           </option>
         @endforeach
@@ -131,7 +131,7 @@
         class="bg-black text-green-400 border border-white font-bold py-1 px-3 rounded shadow hover:text-green-300 hover:border-green-400 text-sm">
         Search
       </button>
-      <a href="{{ url('/read') }}"
+      <a href="{{ url('/read/reset-filters') }}"
         class="bg-black text-red-400 border border-white font-bold py-1 px-3 rounded shadow hover:text-red-300 hover:border-red-400 text-sm">
         Reset
       </a>
@@ -140,11 +140,15 @@
 
   <!-- Row 2: Alphabet Filter -->
   <div class="w-full px-4 py-1 bg-black text-white rounded shadow"
-       x-data="{ selectedLetter: '{{ request('letter') }}' }">
+       x-data="{ selectedLetter: '' }"
+       x-init="selectedLetter = '{{ request('letter', session('letter')) }}'">
     <label class="block font-bold mb-1 text-xs uppercase tracking-wide">Filter by Alphabet</label>
     <div class="flex flex-wrap gap-1">
       <button type="button"
         @click="selectedLetter = ''; $refs.letterInput.value = ''; $refs.form.submit()"
+        :class="selectedLetter === '' 
+          ? 'bg-purple-500 text-white border-purple-400' 
+          : 'bg-black text-white border-white'"
         class="w-7 h-7 text-xs border rounded shadow hover:bg-purple-400 hover:text-black transition">
         All
       </button>
@@ -159,13 +163,14 @@
         </button>
       @endforeach
     </div>
-    <input type="hidden" name="letter" x-ref="letterInput" value="{{ request('letter') }}">
+    <input type="hidden" name="letter" x-ref="letterInput" value="{{ request('letter', session('letter')) }}">
   </div>
 
   <!-- Row 3: Genre Filter -->
   <div class="w-full px-4 py-1 bg-black text-white rounded shadow"
-       x-data="{
-         selectedGenres: {{ json_encode(request('genre', [])) }},
+     x-data="{
+  selectedGenres: {{ json_encode((array) request('genre', session('genre', []))) }},
+
          toggle(genre) {
            if (this.selectedGenres.includes(genre)) {
              this.selectedGenres = this.selectedGenres.filter(g => g !== genre);
@@ -188,11 +193,14 @@
       @endforeach
     </div>
 
+    <!-- Hidden inputs for selected genres -->
     <template x-for="genre in selectedGenres" :key="genre">
       <input type="hidden" name="genre[]" :value="genre">
     </template>
   </div>
+
 </form>
+
 
 
 

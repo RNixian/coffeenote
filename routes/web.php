@@ -57,6 +57,14 @@ Route::get('/delete/{id}', [ReadController::class, 'deletenote'])->name('delete'
 Route::put('/full-update/{id}', [ReadController::class, 'fullupdate'])->name('fullupdate');
 });
 
+Route::get('/read/reset-filters', function () {
+    session()->forget(['search', 'category', 'genre', 'letter']);
+    return redirect()->route('read');
+});
+
+
+
+
 Route::get('/', [ReadController::class, 'dashread'])->name('dashread');
 
 

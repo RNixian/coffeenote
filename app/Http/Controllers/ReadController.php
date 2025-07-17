@@ -59,41 +59,65 @@ class ReadController extends Controller
     $CategoryModel = CategoryModel::all();
     $GenreModel = GenreModel::orderBy('genre', 'asc')->get();
 
-    $query = ReadModel::query();
-
-  
-    if ($request->filled('search')) {
-        $query->where(function ($q) use ($request) {
-            $q->where('title', 'like', '%' . $request->search . '%')
-              ->orWhere('category', 'like', '%' . $request->search . '%')
-              ->orWhere('genre', 'like', '%' . $request->search . '%')
-              ->orWhere('author', 'like', '%' . $request->search . '%')
-              ->orWhere('status', 'like', '%' . $request->search . '%')
-              ->orWhere('created_at', 'like', '%' . $request->search . '%')
-              ->orWhere('updated_at', 'like', '%' . $request->search . '%');
-        });
-    }
-
-    if ($request->filled('category')) {
-        $query->where('category', $request->category);
-    }
-
-   
-    if ($request->filled('genre')) {
-        $genres = is_array($request->genre) ? $request->genre : [$request->genre];
-
-        foreach ($genres as $genre) {
-            $query->where('genre', 'like', '%' . $genre . '%');
+    // Store filters in session if present in request
+    $filters = ['search', 'category', 'genre', 'letter'];
+    foreach ($filters as $filter) {
+        if ($request->has($filter)) {
+            session([$filter => $request->input($filter)]);
+        } elseif (!session()->has($filter)) {
+            session([$filter => null]); // ensure default null if not present
         }
     }
 
-    if ($request->filled('letter')) {
-    $query->where('title', 'like', $request->letter . '%');
+    // Retrieve filter values (from request or session fallback)
+    $search = $request->input('search', session('search'));
+    $category = $request->input('category', session('category'));
+    $genre = $request->input('genre', session('genre'));
+    $letter = $request->input('letter', session('letter'));
+
+    $query = ReadModel::query();
+
+    // Apply filters
+    if (!empty($search)) {
+        $query->where(function ($q) use ($search) {
+            $q->where('title', 'like', '%' . $search . '%')
+              ->orWhere('category', 'like', '%' . $search . '%')
+              ->orWhere('genre', 'like', '%' . $search . '%')
+              ->orWhere('author', 'like', '%' . $search . '%')
+              ->orWhere('status', 'like', '%' . $search . '%')
+              ->orWhere('created_at', 'like', '%' . $search . '%')
+              ->orWhere('updated_at', 'like', '%' . $search . '%');
+        });
+    }
+
+    if (!empty($category)) {
+        $query->where('category', $category);
+    }
+
+  if (!empty($genre)) {
+    $genres = is_array($genre) ? $genre : [$genre];
+    $query->where(function ($q) use ($genres) {
+        foreach ($genres as $g) {
+            $q->orWhere('genre', 'like', '%' . $g . '%');
+        }
+    });
 }
 
-   $query->orderByRaw("REGEXP_REPLACE(title, '[^a-zA-Z0-9]', '') ASC");
+
+    if (!empty($letter)) {
+        $query->where('title', 'like', $letter . '%');
+    }
+
+    $query->orderByRaw("REGEXP_REPLACE(title, '[^a-zA-Z0-9]', '') ASC");
     $ReadModel = $query->get();
-    return view('read', compact('ReadModel', 'CategoryModel', 'GenreModel'));
+
+    return view('read', compact('ReadModel', 'CategoryModel', 'GenreModel'))
+        ->with([
+            'search' => $search,
+            'categorySelected' => $category,
+            'genreSelected' => $genre,
+            'letterSelected' => $letter
+        ]);
 }
 
 
