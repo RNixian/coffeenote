@@ -102,20 +102,21 @@
     @include('header')
   </div>
 
- <form id="filter-form" x-ref="form" method="GET" action="{{ route('read') }}" class="w-full">
-  <div class="w-full flex flex-wrap md:flex-nowrap items-center gap-4 px-4 py-4 bg-black text-white rounded shadow">
+<form id="filter-form" x-ref="form" method="GET" action="{{ route('read') }}" class="w-full space-y-1">
 
+  <!-- Row 1: Search, Category, Buttons -->
+  <div class="w-full flex flex-wrap md:flex-nowrap items-center gap-2 px-4 py-2 bg-black text-white rounded shadow">
     <!-- Search Input -->
     <input type="text" name="search" value="{{ request('search') }}" placeholder="Search..."
-      class="flex-grow bg-black text-white shadow border border-white rounded py-2 px-3 focus:outline-none focus:ring-2 focus:ring-white font-bold" />
+      class="flex-grow bg-black text-white shadow border border-white rounded py-1 px-2 focus:outline-none focus:ring-2 focus:ring-white text-sm font-bold" />
 
     <input type="hidden" name="out_cat" id="out_cat" value="{{ request('out_cat') }}">
 
     <!-- Category Dropdown -->
-    <div class="min-w-[180px]">
+    <div class="min-w-[150px]">
       <select name="category" id="category"
-        class="w-full bg-black text-white border border-white rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-white">
-        <option value="">-- Select Category --</option>
+        class="w-full bg-black text-white border border-white rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-white">
+        <option value="">-- Category --</option>
         @foreach ($CategoryModel as $ctgry)
           <option value="{{ $ctgry->category }}" {{ request('category') == $ctgry->category ? 'selected' : '' }}>
             {{ $ctgry->category }}
@@ -125,30 +126,26 @@
     </div>
 
     <!-- Buttons -->
-    <div class="flex gap-2 mt-6 md:mt-0">
+    <div class="flex gap-1">
       <button type="submit"
-        class="bg-black text-green-400 border border-white font-bold py-2 px-4 rounded shadow hover:text-green-300 hover:border-green-400">
+        class="bg-black text-green-400 border border-white font-bold py-1 px-3 rounded shadow hover:text-green-300 hover:border-green-400 text-sm">
         Search
       </button>
       <a href="{{ url('/read') }}"
-        class="bg-black text-red-400 border border-white font-bold py-2 px-4 rounded shadow hover:text-red-300 hover:border-red-400">
+        class="bg-black text-red-400 border border-white font-bold py-1 px-3 rounded shadow hover:text-red-300 hover:border-red-400 text-sm">
         Reset
       </a>
     </div>
   </div>
 
-<!-- Alphabet + Genre Filters Side-by-Side -->
-<div class="w-full mt-4 px-4 py-4 bg-black text-white rounded shadow flex flex-wrap md:flex-nowrap gap-4 text-sm">
-
-  <!-- Alphabet Filter (30%) -->
-  <div class="w-full md:w-2/12"
+  <!-- Row 2: Alphabet Filter -->
+  <div class="w-full px-4 py-1 bg-black text-white rounded shadow"
        x-data="{ selectedLetter: '{{ request('letter') }}' }">
-    <label class="block font-bold mb-2 text-xs uppercase tracking-wide">Filter by Alphabet</label>
+    <label class="block font-bold mb-1 text-xs uppercase tracking-wide">Filter by Alphabet</label>
     <div class="flex flex-wrap gap-1">
-        <!-- Clear Filter Button -->
       <button type="button"
         @click="selectedLetter = ''; $refs.letterInput.value = ''; $refs.form.submit()"
-        class="w-14 h-7 text-xs border rounded shadow hover:bg-purple-400 hover:text-black transition">
+        class="w-7 h-7 text-xs border rounded shadow hover:bg-purple-400 hover:text-black transition">
         All
       </button>
       @foreach (range('A', 'Z') as $char)
@@ -165,8 +162,8 @@
     <input type="hidden" name="letter" x-ref="letterInput" value="{{ request('letter') }}">
   </div>
 
-  <!-- Genre Filter (70%) -->
-  <div class="w-full md:w-10/12"
+  <!-- Row 3: Genre Filter -->
+  <div class="w-full px-4 py-1 bg-black text-white rounded shadow"
        x-data="{
          selectedGenres: {{ json_encode(request('genre', [])) }},
          toggle(genre) {
@@ -177,7 +174,7 @@
            }
          }
        }">
-    <label class="block font-bold mb-2 text-xs uppercase tracking-wide">Filter by Genre</label>
+    <label class="block font-bold mb-1 text-xs uppercase tracking-wide">Filter by Genre</label>
     <div class="flex flex-wrap gap-1">
       @foreach ($GenreModel as $gnr)
         <button type="button"
@@ -191,15 +188,13 @@
       @endforeach
     </div>
 
-    <!-- Hidden inputs for selected genres -->
     <template x-for="genre in selectedGenres" :key="genre">
       <input type="hidden" name="genre[]" :value="genre">
     </template>
   </div>
-</div>
-
-
 </form>
+
+
 
   <div class="bg-black p-6">
   <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 gap-6">
@@ -219,42 +214,43 @@
       
       <div class="w-full h-50 overflow-hidden rounded-xl mb-4 relative">
         <!-- Top Right Buttons -->
-        <div class="absolute top-2 right-2 flex flex-col gap-2 z-10">
-          <!-- Delete -->
-          <a href="{{ route('read.delete', $read->id) }}" 
-            class="bg-red-500 hover:bg-red-600 text-white font-bold rounded w-8 h-8 flex items-center justify-center">
-            <i data-lucide="trash" class="w-4 h-4"></i>
-          </a>
+       <div class="absolute top-2 right-2 flex flex-col gap-1 z-10">
+  <!-- Delete -->
+  <a href="{{ route('read.delete', $read->id) }}" 
+    class="bg-red-500 hover:bg-red-600 text-white font-bold rounded w-8 h-8 flex items-center justify-center 
+           transform scale-75 hover:scale-100 transition-transform duration-200">
+    <i data-lucide="trash" class="w-3.5 h-3.5"></i>
+  </a>
 
-          <!-- Edit (Full View) -->
-          @php
-            $params = [
-              'id' => $read->id,
-              'title' => $read->title,
-              'volume' => $read->volume,
-              'chapter' => $read->chapter,
-              'page' => $read->page,
-              'author' => $read->author,
-              'category' => $read->category,
-              'genre' => $read->genre,
-              'status' => $read->status,
-            ];
-          @endphp
-          <a href="{{ url('fullviewedit') . '?' . http_build_query($params) }}"
-            class="btn-extended-edit bg-green-500 hover:bg-green-600 text-white font-bold rounded w-8 h-8 flex items-center justify-center">
-            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-          </a>
-
-          <!-- Quick Edit -->
-          <button class="btn-edit bg-blue-500 hover:bg-blue-600 text-white font-bold rounded w-8 h-8 flex items-center justify-center"
-                  data-id="{{ $read->id }}"
-                  data-title="{{ $read->title }}"
-                  data-chapter="{{ $read->chapter }}"
-                  data-coverphoto="{{ $read->coverphoto }}">
-            <i data-lucide="pencil" class="w-4 h-4"></i>
-          </button>
-        </div>
-
+  <!-- Edit (Full View) -->
+  @php
+    $params = [
+      'id' => $read->id,
+      'title' => $read->title,
+      'volume' => $read->volume,
+      'chapter' => $read->chapter,
+      'page' => $read->page,
+      'author' => $read->author,
+      'category' => $read->category,
+      'genre' => $read->genre,
+      'status' => $read->status,
+    ];
+  @endphp
+  <a href="{{ url('fullviewedit') . '?' . http_build_query($params) }}"
+    class="btn-extended-edit bg-green-500 hover:bg-green-600 text-white font-bold rounded w-8 h-8 flex items-center justify-center 
+           transform scale-75 hover:scale-100 transition-transform duration-200">
+    <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+  </a>
+  <!-- Quick Edit -->
+  <button class="btn-edit bg-blue-500 hover:bg-blue-600 text-white font-bold rounded w-8 h-8 flex items-center justify-center 
+          transform scale-75 hover:scale-100 transition-transform duration-200"
+          data-id="{{ $read->id }}"
+          data-title="{{ $read->title }}"
+          data-chapter="{{ $read->chapter }}"
+          data-coverphoto="{{ $read->coverphoto }}">
+    <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+  </button>
+</div>
         <!-- Cover Image (Portrait) -->
         <img src="{{ asset($read->coverphoto ? 'storage/' . $read->coverphoto : 'images/default.png') }}"
              alt="{{ $read->title }}"

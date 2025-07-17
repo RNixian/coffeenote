@@ -18,7 +18,8 @@ class ReadController extends Controller
     public function addtoread()
     {
         $CategoryModel = CategoryModel::all();
-        $GenreModel = GenreModel::all();
+       $GenreModel = GenreModel::orderBy('genre', 'asc')->get();
+
 
         return view('addtoread', compact('GenreModel', 'CategoryModel'));
     }
@@ -56,7 +57,7 @@ class ReadController extends Controller
  public function read(Request $request)
 {
     $CategoryModel = CategoryModel::all();
-    $GenreModel = GenreModel::all();
+    $GenreModel = GenreModel::orderBy('genre', 'asc')->get();
 
     $query = ReadModel::query();
 
@@ -90,7 +91,7 @@ class ReadController extends Controller
     $query->where('title', 'like', $request->letter . '%');
 }
 
-    $query->orderBy('title', 'asc');
+   $query->orderByRaw("REGEXP_REPLACE(title, '[^a-zA-Z0-9]', '') ASC");
     $ReadModel = $query->get();
     return view('read', compact('ReadModel', 'CategoryModel', 'GenreModel'));
 }
@@ -192,8 +193,11 @@ public function fulledit(Request $request)
     $note->status = $request->status;
 
     
+ if ($request->has('genre')) {
     $genreArray = $request->input('genre', []);
     $note->genre = implode(',', $genreArray);
+}
+
 
    
     if ($request->hasFile('coverphoto')) {
