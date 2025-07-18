@@ -76,30 +76,36 @@
     <div class="w-full md:w-1/3 bg-gray-800 p-6 rounded-xl border border-purple-600 space-y-4"> 
       <div>
         <label for="title" class="block font-bold text-white">Title</label>
-        <textarea name="title" id="title" class="w-full h-40 px-3 py-2 bg-black border border-blue-500 rounded text-white focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"></textarea>
+        <textarea name="title" id="title" class="w-full h-40 px-2 py-1 bg-black border border-blue-500 rounded text-white focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"></textarea>
       </div>
-<div class="flex flex-col md:flex-row gap-2">
-      <div>
-        <label for="chapter" class="block font-bold text-white">Chapter</label>
-        <input type="text" name="chapter" id="chapter" class="w-full px-3 py-2 bg-black border border-pink-500 rounded text-white focus:outline-none focus:ring-2 focus:ring-pink-400">
-      </div>
-
-<div>
-  <label for="status" class="block font-bold mb-1">Status</label>
-    <select name="status" id="status" class="w-full px-3 py-2 bg-black border border-pink-500 rounded text-white focus:outline-none focus:ring-2 focus:ring-pink-400">
+<div class="flex flex-col md:flex-row gap-6">
+  <div class="flex-1">
+    <label for="chapter" class="block font-bold text-white">Chapter</label>
+    <input type="text" name="chapter" id="chapter"
+      class="w-full px-3 py-2 bg-black border border-pink-500 rounded text-white focus:outline-none focus:ring-2 focus:ring-pink-400">
+  </div>
+  
+  <div class="flex-1">
+    <label for="status" class="block font-bold text-white">Status</label>
+    <select name="status" id="status"
+      class="w-full px-3 py-2 bg-black border border-pink-500 rounded text-white focus:outline-none focus:ring-2 focus:ring-pink-400">
       <option value="ongoing">Ongoing</option>
       <option value="completed">Completed</option>
       <option value="archived">Archived</option>
     </select>
+  </div>
 </div>
 
-</div>
       <div>
+    <div class="flex flex-col md:flex-row gap-6">
+        <div>
         <label for="coverphoto" class="block font-bold text-white">Cover Photo</label>
         <input type="file" name="coverphoto" id="coverphoto" accept="image/*" onchange="previewCover(event)" class="w-full text-white">
+        </div>
         <div id="preview" class="mt-2 hidden">
           <img id="coverPreview" src="#" alt="Cover Preview" class="w-20 h-20 object-cover rounded cursor-pointer hover:ring-2 hover:ring-blue-400 transition-all duration-300" onclick="openModal()">
-        </div>
+        </div> 
+      </div>
       </div>
     </div>
 
