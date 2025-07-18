@@ -110,8 +110,8 @@ class ReadController extends Controller
 
     $query->orderByRaw("REGEXP_REPLACE(title, '[^a-zA-Z0-9]', '') ASC");
     $ReadModel = $query->get();
-
-    return view('read', compact('ReadModel', 'CategoryModel', 'GenreModel'))
+    $totalnotes = $query->count();
+    return view('read', compact('ReadModel', 'CategoryModel', 'GenreModel', 'totalnotes'))
         ->with([
             'search' => $search,
             'categorySelected' => $category,
@@ -159,7 +159,8 @@ class ReadController extends Controller
     public function fullviewedit(Request $request)
 {
     $CategoryModel = CategoryModel::all();
-    $GenreModel = GenreModel::all();
+    $GenreModel = GenreModel::orderBy('genre', 'asc')->get();
+
 
     $note = ReadModel::findOrFail($request->id); 
 

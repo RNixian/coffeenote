@@ -94,6 +94,55 @@
     z-index: -2;
   }
 
+ .glitch {
+      position: relative;
+      color: white;
+      font-size: 2rem;
+      text-align: center;
+      text-transform: uppercase;
+      font-weight: bold;
+      animation: glitch-skew 1s infinite linear alternate-reverse;
+    }
+
+    .glitch::before,
+    .glitch::after {
+      content: attr(data-text);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      color: #0ff;
+      background: transparent;
+      overflow: hidden;
+      clip: rect(0, 900px, 0, 0);
+    }
+
+    .glitch::after {
+      color: #f0f;
+      left: 2px;
+      animation: glitch-anim-1 1.5s infinite linear alternate-reverse;
+    }
+
+    .glitch::before {
+      left: -2px;
+      animation: glitch-anim-2 1s infinite linear alternate-reverse;
+    }
+
+    @keyframes glitch-skew {
+      0% { transform: skew(0deg); }
+      100% { transform: skew(2deg); }
+    }
+
+    @keyframes glitch-anim-1 {
+      0% { clip: rect(42px, 9999px, 44px, 0); }
+      100% { clip: rect(12px, 9999px, 90px, 0); }
+    }
+
+    @keyframes glitch-anim-2 {
+      0% { clip: rect(52px, 9999px, 56px, 0); }
+      100% { clip: rect(32px, 9999px, 86px, 0); }
+    }
+
   </style>
 </head>
 
@@ -103,6 +152,13 @@
   </div>
 
 <form id="filter-form" x-ref="form" method="GET" action="{{ route('read') }}" class="w-full space-y-1">
+ 
+<div class="w-full flex flex-wrap md:flex-nowrap items-center justify-between px-4 py-2">
+  <h2 class="glitch text-[20px]" data-text="Welcome Reader: Nix">Welcome Reader: Nix</h2>
+  <h2 class="glitch text-[20px]" data-text="Total Number of Notes: {{ $totalnotes }}">
+    Total Number of Notes: {{ $totalnotes }}
+  </h2>
+</div>
 
   <!-- Row 1: Search, Category, Buttons -->
   <div class="w-full flex flex-wrap md:flex-nowrap items-center gap-2 px-4 py-2 bg-black text-white rounded shadow">
@@ -136,13 +192,11 @@
         Reset
       </a>
     </div>
-  </div>
 
-  <!-- Row 2: Alphabet Filter -->
-  <div class="w-full px-4 py-1 bg-black text-white rounded shadow"
+<div class=" px-4 py-1 bg-black text-white rounded shadow"
        x-data="{ selectedLetter: '' }"
        x-init="selectedLetter = '{{ request('letter', session('letter')) }}'">
-    <label class="block font-bold mb-1 text-xs uppercase tracking-wide">Filter by Alphabet</label>
+    
     <div class="flex flex-wrap gap-1">
       <button type="button"
         @click="selectedLetter = ''; $refs.letterInput.value = ''; $refs.form.submit()"
@@ -166,8 +220,14 @@
     <input type="hidden" name="letter" x-ref="letterInput" value="{{ request('letter', session('letter')) }}">
   </div>
 
+
+  </div>
+
+  <!-- Row 2: Alphabet Filter -->
+  
+
   <!-- Row 3: Genre Filter -->
-  <div class="w-full px-4 py-1 bg-black text-white rounded shadow"
+  <div class="w-full px-.5 py-.25 bg-black text-white rounded shadow"
      x-data="{
   selectedGenres: {{ json_encode((array) request('genre', session('genre', []))) }},
 
@@ -286,7 +346,7 @@
     <button id="closeModal"
             class="absolute top-2 right-2 text-white hover:text-red-400 text-2xl font-bold">&times;</button>
 
-    <h2 id="modal-title" class="text-center text-3xl font-bold mb-6 text-purple-400">Update Note</h2>
+   
 
    <form id="updateForm" action="{{ route('read.update', ['id' => '__ID__']) }}" method="POST" enctype="multipart/form-data">
     @csrf
@@ -300,6 +360,8 @@
 
         <!-- Left Column: Title + Chapter -->
         <div>
+           <h2 id="modal-title" class="text-center text-3xl font-bold mb-6 text-purple-400">Update Note</h2>
+
             <!-- Title Display -->
             <div class="mb-4">
                 <label class="block font-bold text-white mb-1">Title:</label>
@@ -326,7 +388,7 @@
             <div class="text-center">
                 <label class="block font-bold text-white mb-2">Cover Photo:</label>
                 <img id="note_coverphoto" src="" alt="Cover Photo"
-                     class="w-64 h-64 object-cover border-2 border-purple-500 rounded shadow-md">
+                     class="w-64 h-96 object-cover border-2 border-purple-500 rounded shadow-md">
             </div>
         </div>
 
