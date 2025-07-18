@@ -68,11 +68,7 @@
     @include('header')
   </div>
 
-  <!-- Page Container -->
-  <div>
-   
-
-    <form action="{{ route('addtoread.store') }}" method="POST" enctype="multipart/form-data" class="w-full h-full p-6 bg-gray-900 rounded-xl space-y-6">
+    <form action="{{ route('addtoread.store') }}" method="POST" enctype="multipart/form-data" class="w-full h-full p-3 bg-gray-900 rounded-xl space-y-1">
   @csrf
  <h2 class="glitch mb-10 text-center text-[70px]" data-text="Add New To Read">Add New To Read</h2>
   <div class="flex flex-col md:flex-row gap-6">
@@ -111,7 +107,7 @@
     <div class="w-full md:w-2/3 bg-gray-800 p-6 rounded-xl border border-purple-600 space-y-6">
       
       <!-- Row 1: Volume and Page -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div>
           <label for="volume" class="block font-bold text-white">Volume</label>
           <input type="text" name="volume" id="volume" class="w-full px-3 py-2 bg-black border border-pink-500 rounded text-white focus:outline-none focus:ring-2 focus:ring-pink-400">
@@ -120,10 +116,6 @@
           <label for="page" class="block font-bold text-white">Page</label>
           <input type="text" name="page" id="page" class="w-full px-3 py-2 bg-black border border-pink-500 rounded text-white focus:outline-none focus:ring-2 focus:ring-pink-400">
         </div>
-      </div>
-
-      <!-- Row 2: Author and Category -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label for="author" class="block font-bold text-white">Author</label>
           <input type="text" name="author" id="author" class="w-full bg-black border border-gray-300 rounded px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-400">
@@ -174,13 +166,12 @@
     </template>
   </div>
 </div>
-    
     </div>
   </div>
 
   <!-- Submit Button -->
   <div class="w-full flex justify-center mt-4">
-    <button type="submit" class="bg-blue-600 hover:bg-blue-700 px-6 py-2 font-bold rounded text-white shadow transition-all duration-300">
+    <button type="submit" class="bg-blue-600 hover:bg-blue-700 px-6 py-3 font-bold rounded text-white shadow transition-all duration-300">
       Submit
     </button>
   </div>
@@ -193,7 +184,7 @@
     <img id="modalImage" src="#" alt="Cover Full Preview" class="max-w-3xl max-h-[90vh] rounded shadow-lg" />
   </div>
 </div>
-</div>
+
   <script>
     function previewCover(event) {
       const [file] = event.target.files;
