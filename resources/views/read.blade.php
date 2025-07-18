@@ -193,7 +193,7 @@
       </a>
     </div>
 
-<div class=" px-4 py-1 bg-black text-white rounded shadow"
+<div class=" px-2 py-1 bg-black text-white rounded shadow"
        x-data="{ selectedLetter: '' }"
        x-init="selectedLetter = '{{ request('letter', session('letter')) }}'">
     
@@ -203,7 +203,7 @@
         :class="selectedLetter === '' 
           ? 'bg-purple-500 text-white border-purple-400' 
           : 'bg-black text-white border-white'"
-        class="w-7 h-7 text-xs border rounded shadow hover:bg-purple-400 hover:text-black transition">
+        class="w-6 h-6 text-xs border rounded shadow hover:bg-purple-400 hover:text-black transition">
         All
       </button>
       @foreach (range('A', 'Z') as $char)
@@ -212,7 +212,7 @@
           :class="selectedLetter === '{{ $char }}' 
             ? 'bg-purple-500 text-white border-purple-400' 
             : 'bg-black text-white border-white'"
-          class="w-7 h-7 text-xs border rounded shadow hover:bg-purple-400 hover:text-black transition">
+          class="w-6 h-6 text-xs border rounded shadow hover:bg-purple-400 hover:text-black transition">
           {{ $char }}
         </button>
       @endforeach
