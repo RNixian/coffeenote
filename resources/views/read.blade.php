@@ -143,6 +143,18 @@
       100% { clip: rect(32px, 9999px, 86px, 0); }
     }
 
+/* Tailwind classes already do this, but if you want more animation */
+@keyframes flash-border {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  100% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+}
+
+.ring-green-500 {
+  animation: flash-border 1.5s ease-out;
+}
+
+
+
   </style>
 </head>
 
@@ -222,10 +234,6 @@
 
 
   </div>
-
-  <!-- Row 2: Alphabet Filter -->
-  
-
   <!-- Row 3: Genre Filter -->
   <div class="w-full px-.5 py-.25 bg-black text-white rounded shadow"
      x-data="{
@@ -261,9 +269,6 @@
 
 </form>
 
-
-
-
   <div class="bg-black p-6">
   <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 gap-6">
     
@@ -277,9 +282,9 @@
       </span>
     </a>
 
-    @foreach ($ReadModel as $read)
-    <div class="bg-gray-900 border border-purple-600 rounded-2xl shadow-lg p-4 text-white">
-      
+   @foreach ($ReadModel as $read)
+<div id="note-{{ $read->id }}" class="bg-gray-900 border border-purple-600 rounded-2xl shadow-lg p-4 text-white">
+ 
       <div class="w-full h-50 overflow-hidden rounded-xl mb-4 relative">
         <!-- Top Right Buttons -->
        <div class="absolute top-2 right-2 flex flex-col gap-1 z-10">
@@ -315,6 +320,7 @@
           data-id="{{ $read->id }}"
           data-title="{{ $read->title }}"
           data-chapter="{{ $read->chapter }}"
+          data-page="{{ $read->page }}"
           data-coverphoto="{{ $read->coverphoto }}">
     <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
   </button>
@@ -326,12 +332,13 @@
       </div>
 
       <!-- Title and Chapter -->
-      <h3 class="text-sm font-semibold text-white mb-1 truncate leading-tight">{{ $read->title }}</h3>
-      <p class="text-base text-purple-400 font-bold">
-        Chapter: <span class="text-white">{{ $read->chapter }}</span>
-      </p>
-    </div>
-    @endforeach
+     <h3 class="text-xs font-semibold text-white mb-1 truncate leading-tight">{{ $read->title }}</h3>
+
+    <p class="text-base text-purple-400 font-bold">
+    Chapter: <span class="text-white chapter-span">{{ $read->chapter }}</span>
+  </p>
+</div>
+@endforeach
 
   </div>
 </div>
@@ -375,6 +382,15 @@
                        class="w-full px-6 py-4 text-2xl bg-black text-white border border-purple-500 rounded focus:outline-none focus:ring-2 focus:ring-purple-600"
                        required autofocus>
             </div>
+
+<div class="mb-4">
+                <label for="edit_page" class="block font-bold mb-2 text-white">Page</label>
+                <input type="text" name="page" id="edit_page"
+                       class="w-full px-6 py-4 text-2xl bg-black text-white border border-purple-500 rounded focus:outline-none focus:ring-2 focus:ring-purple-600"
+                       required>
+            </div>
+
+
              <div class="flex justify-center mt-6">
         <button type="submit"
                 class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2 rounded-lg transition-all duration-300">
@@ -399,6 +415,23 @@
 </form>
   </div>
 </div>
+
+@if(session('updated_id'))
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    const updatedCard = document.getElementById('note-{{ session('updated_id') }}');
+    if (updatedCard) {
+      updatedCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      // Optionally highlight the card briefly
+      updatedCard.classList.add('ring-4', 'ring-green-500');
+      setTimeout(() => {
+        updatedCard.classList.remove('ring-4', 'ring-green-500');
+      }, 2000);
+    }
+  });
+</script>
+@endif
  <script>
   lucide.createIcons();
 
@@ -412,6 +445,7 @@
     const id = this.dataset.id;
 const title = this.dataset.title;
 const chapter = this.dataset.chapter;
+const page = this.dataset.page;
 const coverphoto = this.dataset.coverphoto; // new line
 
 // Update form action and inputs
@@ -419,7 +453,7 @@ updateForm.action = originalAction.replace('__ID__', id);
 document.getElementById('note_id').value = id;
 document.getElementById('note_title').textContent = title;
 document.getElementById('edit_chapter').value = chapter;
-
+document.getElementById('edit_page').value = page;
 // Set cover photo preview
 document.getElementById('note_coverphoto').src =
   coverphoto ? 'storage/' + coverphoto : 'images/default.png';
@@ -428,6 +462,7 @@ document.getElementById('note_coverphoto').src =
       updateModal.classList.remove('hidden');
       setTimeout(() => {
         document.getElementById('edit_chapter').focus();
+        document.getElementById('edit_page').focus();
       }, 100); // slight delay ensures element is rendered before focus
 
       document.body.classList.add('overflow-hidden');

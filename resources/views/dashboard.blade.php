@@ -106,11 +106,19 @@
     <h2 class="text-lg font-semibold mb-6 text-center text-white">Completed</h2>
     <h2 class="font-bold text-center text-6xl text-white">{{ $totalcompleted }}</h2>
 </div>
+
+<div class="glitch-box rounded p-8 flex flex-col items-center justify-center w-[300px] h-[300px]">
+    <h2 class="text-lg font-semibold mb-6 text-center text-white">Chapters Read</h2>
+    <h2 class="font-bold text-center text-6xl text-white">{{ $chaptersum }}</h2>
+</div>
         </div>
+
+<!-- Recently Added --><!-- Recently Added --><!-- Recently Added --><!-- Recently Added --><!-- Recently Added -->
 
 <div class="bg-black p-6">
      <h2 class="glitch mb-10 text-center text-[70px]" data-text="Recently Added">Recently Added</h2>
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-6">
+   <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-7 gap-6">
+
      @foreach ($ReadModel as $read)
   <div class="bg-gray-900 border border-purple-600 rounded-2xl shadow-lg p-4 text-white">
     <div class="w-full h-48 overflow-hidden rounded-xl mb-4 relative">
@@ -161,9 +169,12 @@
     </div>
   </div>
 
+<!-- Recently Updated --><!-- Recently Updated --><!-- Recently Updated --><!-- Recently Updated --><!-- Recently Updated -->
+
   <div class="bg-black p-6">
      <h2 class="glitch mb-10 text-center text-[70px]" data-text="Recently Updated">Recently Updated</h2>
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-7 gap-6">
+
      @foreach ($ReadModels as $read)
   <div class="bg-gray-900 border border-purple-600 rounded-2xl shadow-lg p-4 text-white">
     <div class="w-full h-48 overflow-hidden rounded-xl mb-4 relative">
@@ -213,6 +224,65 @@
 @endforeach
     </div>
   </div>
+
+  <!-- Recently Archived --><!-- Recently Archived --><!-- Recently Archived --><!-- Recently Archived --><!-- Recently Archived -->
+
+<div class="bg-black p-6">
+     <h2 class="glitch mb-10 text-center text-[70px]" data-text="Recently Archived">Recently Archived</h2>
+ <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-7 gap-6">
+
+     @foreach ($ReadModelss as $read)
+  <div class="bg-gray-900 border border-purple-600 rounded-2xl shadow-lg p-4 text-white">
+    <div class="w-full h-48 overflow-hidden rounded-xl mb-4 relative">
+      <!-- Container for vertical button alignment -->
+      <div class="absolute top-2 right-2 flex flex-col gap-2 z-10">
+  <a href="{{ route('read.delete', $read->id) }}" 
+     class="bg-red-500 hover:bg-red-600 text-white font-bold rounded w-8 h-8 flex items-center justify-center">
+    <i data-lucide="trash" class="w-4 h-4"></i>
+  </a>
+
+@php
+  $params = [
+    'id' => $read->id,
+    'title' => $read->title,
+    'volume' => $read->volume,
+    'chapter' => $read->chapter,
+    'page' => $read->page,
+    'author' => $read->author,
+    'category' => $read->category,
+    'genre' => $read->genre,
+    'status' => $read->status,
+  ];
+@endphp
+
+<a href="{{ url('fullviewedit') . '?' . http_build_query($params) }}"
+   class="btn-extended-edit bg-green-500 hover:bg-green-600 text-white font-bold rounded w-8 h-8 flex items-center justify-center">
+   <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+</a>
+  <button class="btn-edit bg-blue-500 hover:bg-blue-600 text-white font-bold rounded w-8 h-8 flex items-center justify-center"
+          data-id="{{ $read->id }}"
+          data-title="{{ $read->title }}"
+          data-chapter="{{ $read->chapter }}"
+          data-coverphoto="{{ $read->coverphoto }}">
+    <i data-lucide="pencil" class="w-4 h-4"></i>
+  </button>
+</div>
+      <img src="{{ asset($read->coverphoto ? 'storage/' . $read->coverphoto : 'images/default.png') }}"
+           alt="{{ $read->title }}"
+           class="w-full h-full object-cover transition-transform duration-300 hover:scale-105" />
+    </div>
+
+    <h3 class="text-base font-semibold text-white mb-1 truncate">{{ $read->title }}</h3>
+<p class="text-lg text-purple-400 font-bold">
+  Chapter: <span class="text-white">{{ $read->chapter }}</span>
+</p>   
+  </div>
+@endforeach
+    </div>
+  </div>
+
+
+
 
  <script>
   lucide.createIcons();

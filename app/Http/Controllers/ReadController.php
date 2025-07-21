@@ -138,23 +138,26 @@ class ReadController extends Controller
     }
 
     // UPDATE
-    public function updatenote(Request $request, $id)
-    {
-        $request->validate([
-            'chapter' => 'required|string|max:255',
-        ]);
+public function updatenote(Request $request, $id)
+{
+    $request->validate([
+        'chapter' => 'required|string|max:255',
+        'page' => 'required|string|max:255',
+    ]);
 
-        $read = ReadModel::find($id);
+    $read = ReadModel::find($id);
 
-        if (!$read) {
-            return redirect()->route('read')->with('error', 'Note not found.');
-        }
-        $read->chapter = $request->input('chapter');
-
-        $read->save();
-
-        return redirect()->route('read')->with('success', 'Note updated successfully.');
+    if (!$read) {
+        return redirect()->route('read')->with('error', 'Note not found.');
     }
+
+    $read->chapter = $request->input('chapter');
+    $read->page = $request->input('page');
+    $read->save();
+
+    return redirect()->route('read')->with('success', 'Note updated successfully.')->with('updated_id', $id);
+}
+
 
     public function fullviewedit(Request $request)
 {
@@ -235,19 +238,46 @@ public function fulledit(Request $request)
     }
 
     $note->save();
+    return redirect()->route('read')
+    ->with('success', 'Note updated successfully.')
+    ->with('updated_id', $id);
 
-    return redirect()->route('read')->with('success', 'Note updated successfully.');
 }
 
 public function dashread() {
-    $ReadModel = ReadModel::orderBy('created_at', 'desc')->take(5)->get();
-    $ReadModels = ReadModel::orderBy('updated_at', 'desc')->take(5)->get();
+    $ReadModel = ReadModel::orderBy('created_at', 'desc')->take(7)->get();
+    $ReadModels = ReadModel::orderBy('updated_at', 'desc')->take(7)->get();
+    $ReadModelss = ReadModel::where('status', 'archived')->take(7)->get();
     $totalnotes = ReadModel::count();
     $totalongoing = ReadModel::where('status', 'ongoing')->count();
     $totalarchived = ReadModel::where('status', 'archived')->count();
     $totalcompleted = ReadModel::where('status', 'completed')->count();
 
-    return view('dashboard', compact('totalnotes', 'totalarchived', 'totalcompleted', 'totalongoing', 'ReadModel', 'ReadModels'));
+    // Calculate the sum of whole number parts from the 'chapter' column
+    $chapters = ReadModel::pluck('chapter');
+    $chaptersum = 0;
+
+    foreach ($chapters as $chapterString) {
+        $chaptersArray = explode(',', $chapterString);
+
+        foreach ($chaptersArray as $chapter) {
+            if (preg_match('/\d+/', trim($chapter), $matches)) {
+                $chaptersum += (int) $matches[0];
+            }
+        }
+    }
+
+    return view('dashboard', compact(
+        'totalnotes',
+        'totalarchived',
+        'totalcompleted',
+        'totalongoing',
+        'ReadModel',
+        'ReadModels',
+        'chaptersum',
+        'ReadModelss'
+    ));
 }
+
 
 }
