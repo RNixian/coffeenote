@@ -332,7 +332,15 @@
       </div>
 
       <!-- Title and Chapter -->
-     <h3 class="text-xs font-semibold text-white mb-1 truncate leading-tight">{{ $read->title }}</h3>
+     <div class="flex items-center justify-between gap-2 mb-1">
+  <h3 class="text-xs font-semibold text-white truncate leading-tight" id="title-{{ $read->id }}">{{ $read->title }}</h3>
+  <button 
+    onclick="copyTitle('{{ $read->id }}')" 
+    class="text-purple-400 hover:text-purple-200 transition" 
+    title="Copy Title">
+    <i data-lucide="copy" class="w-4 h-4"></i>
+  </button>
+</div>
 
     <p class="text-base text-purple-400 font-bold">
     Chapter: <span class="text-white chapter-span">{{ $read->chapter }}</span>
@@ -342,6 +350,16 @@
 
   </div>
 </div>
+<script>
+  function copyTitle(id) {
+    const titleText = document.getElementById('title-' + id).innerText;
+    navigator.clipboard.writeText(titleText).then(() => {
+      alert('Title copied: ' + titleText);
+    }).catch(err => {
+      console.error('Failed to copy title:', err);
+    });
+  }
+</script>
 
 
   <!-- Modal -->
@@ -387,7 +405,7 @@
                 <label for="edit_page" class="block font-bold mb-2 text-white">Page</label>
                 <input type="text" name="page" id="edit_page"
                        class="w-full px-6 py-4 text-2xl bg-black text-white border border-purple-500 rounded focus:outline-none focus:ring-2 focus:ring-purple-600"
-                       required>
+                       >
             </div>
 
 

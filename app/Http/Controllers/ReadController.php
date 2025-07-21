@@ -142,7 +142,7 @@ public function updatenote(Request $request, $id)
 {
     $request->validate([
         'chapter' => 'required|string|max:255',
-        'page' => 'required|string|max:255',
+        'page' => 'nullable|string|max:255',
     ]);
 
     $read = ReadModel::find($id);
