@@ -145,14 +145,29 @@
 
 /* Tailwind classes already do this, but if you want more animation */
 @keyframes flash-border {
-  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-  100% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+  0%   { box-shadow: 0 0 0 0 rgba(34, 255, 170, 1); }
+  10%  { box-shadow: 0 0 0 0.8px rgba(34, 255, 170, 0.93); }
+  20%  { box-shadow: 0 0 0 1.6px rgba(34, 255, 170, 0.86); }
+  30%  { box-shadow: 0 0 0 2.4px rgba(34, 255, 170, 0.79); }
+  40%  { box-shadow: 0 0 0 3.2px rgba(34, 255, 170, 0.72); }
+  50%  { box-shadow: 0 0 0 4px rgba(34, 255, 170, 0.65); }
+  60%  { box-shadow: 0 0 0 4.8px rgba(34, 255, 170, 0.58); }
+  70%  { box-shadow: 0 0 0 5.6px rgba(34, 255, 170, 0.41); }
+  80%  { box-shadow: 0 0 0 6.4px rgba(34, 255, 170, 0.28); }
+  90%  { box-shadow: 0 0 0 7.2px rgba(34, 255, 170, 0.14); }
+  100% { box-shadow: 0 0 0 8px rgba(34, 255, 170, 0); }
 }
+
+
 
 .ring-green-500 {
-  animation: flash-border 1.5s ease-out;
+   animation: flash-border 2s ease-out infinite;
 }
 
+
+.flash {
+
+}
 
 
   </style>
@@ -411,19 +426,20 @@
             </div>
 
             <!-- Chapter Input -->
-            <div class="mb-4">
-                <label for="edit_chapter" class="block font-bold mb-2 text-white">Chapter</label>
-                <input type="text" name="chapter" id="edit_chapter"
-                       class="w-full px-6 py-4 text-2xl bg-black text-white border border-purple-500 rounded focus:outline-none focus:ring-2 focus:ring-purple-600"
-                       required autofocus>
-            </div>
+    
+<div class="mb-4">
+    <label for="edit_chapter" class="block font-bold mb-2 text-white">Chapter</label>
+    <input type="text" name="chapter" id="edit_chapter"
+           class="w-full px-6 py-4 text-2xl bg-black text-white border border-purple-500 rounded focus:outline-none focus:ring-2 focus:ring-purple-600"
+           required autofocus>
+</div>
 
 <div class="mb-4">
-                <label for="edit_page" class="block font-bold mb-2 text-white">Page</label>
-                <input type="text" name="page" id="edit_page"
-                       class="w-full px-6 py-4 text-2xl bg-black text-white border border-purple-500 rounded focus:outline-none focus:ring-2 focus:ring-purple-600"
-                       >
-            </div>
+    <label for="edit_page" class="block font-bold mb-2 text-white">Page</label>
+    <input type="text" name="page" id="edit_page"
+           class="w-full px-6 py-4 text-2xl bg-black text-white border border-purple-500 rounded focus:outline-none focus:ring-2 focus:ring-purple-600">
+</div>
+
 
 
              <div class="flex justify-center mt-6">
@@ -497,7 +513,7 @@ document.getElementById('note_coverphoto').src =
       updateModal.classList.remove('hidden');
       setTimeout(() => {
         document.getElementById('edit_chapter').focus();
-        document.getElementById('edit_page').focus();
+        
       }, 100); // slight delay ensures element is rendered before focus
 
       document.body.classList.add('overflow-hidden');
