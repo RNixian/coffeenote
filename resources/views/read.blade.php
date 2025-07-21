@@ -349,17 +349,34 @@
 @endforeach
 
   </div>
+  <div id="toast" class="fixed bottom-6 right-6 bg-purple-600 text-white px-4 py-2 rounded-lg shadow-lg opacity-0 pointer-events-none transition-opacity duration-300 z-50">
+  Title copied!
+</div>
+
 </div>
 <script>
   function copyTitle(id) {
     const titleText = document.getElementById('title-' + id).innerText;
     navigator.clipboard.writeText(titleText).then(() => {
-      alert('Title copied: ' + titleText);
+      showToast("Title copied!");
     }).catch(err => {
       console.error('Failed to copy title:', err);
     });
   }
+
+  function showToast(message) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.remove('opacity-0');
+    toast.classList.add('opacity-100');
+
+    setTimeout(() => {
+      toast.classList.remove('opacity-100');
+      toast.classList.add('opacity-0');
+    }, 2000);
+  }
 </script>
+
 
 
   <!-- Modal -->
