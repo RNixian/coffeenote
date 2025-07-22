@@ -259,9 +259,9 @@ public function fulledit(Request $request)
 public function dashread() {
     $ReadModel = ReadModel::orderBy('created_at', 'desc')->take(7)->get();
     $ReadModels = ReadModel::whereColumn('updated_at', '!=', 'created_at')
-    ->orderBy('updated_at', 'desc')
-    ->take(7)
-    ->get();
+        ->orderBy('updated_at', 'desc')
+        ->take(7)
+        ->get();
 
     $ReadModelss = ReadModel::where('status', 'archived')->take(7)->get();
     $totalnotes = ReadModel::count();
@@ -282,6 +282,9 @@ public function dashread() {
             }
         }
     }
+
+    // Subtract totalnotes from chaptersum
+    $chaptersum = $chaptersum - $totalnotes;
 
     return view('dashboard', compact(
         'totalnotes',

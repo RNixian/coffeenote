@@ -154,7 +154,7 @@
     @foreach ($GenreModel as $gnr)
       <button
         type="button"
-        class="px-2 py-1 rounded border text-xs font-medium transition-all"
+        class="px-1 py-.5 rounded border text-xs font-medium transition-all"
         :class="selected.includes('{{ $gnr->genre }}') 
           ? 'bg-black text-white border-gray-500' 
           : 'bg-gray-800 text-gray-300 border-gray-600'"
