@@ -180,12 +180,33 @@
 
 <form id="filter-form" x-ref="form" method="GET" action="{{ route('read') }}" class="w-full space-y-1">
  
+<!-- Top Bar -->
 <div class="w-full flex flex-wrap md:flex-nowrap items-center justify-between px-4 py-2">
+  <!-- Welcome -->
   <h2 class="glitch text-[20px]" data-text="Welcome Reader: Nix">Welcome Reader: Nix</h2>
+
+  <!-- Status Navigation -->
+  <div class="flex gap-2 items-center my-2 md:my-0">
+    @php
+      $statuses = ['ongoing' => 'Ongoing', 'completed' => 'Completed', 'archived' => 'Archived'];
+      $activeStatus = request('status', session('status'));
+    @endphp
+
+    @foreach ($statuses as $key => $label)
+      <a href="{{ route('read', array_merge(request()->all(), ['status' => $key])) }}"
+         class="text-xs font-bold px-3 py-1 border rounded shadow 
+                {{ $activeStatus === $key ? 'bg-purple-600 text-white border-purple-400' : 'bg-black text-white border-white hover:bg-purple-400 hover:text-black' }}">
+        {{ $label }}
+      </a>
+    @endforeach
+  </div>
+
+  <!-- Total Notes -->
   <h2 class="glitch text-[20px]" data-text="Total Number of Notes: {{ $totalnotes }}">
     Total Number of Notes: {{ $totalnotes }}
   </h2>
 </div>
+
 
   <!-- Row 1: Search, Category, Buttons -->
   <div class="w-full flex flex-wrap md:flex-nowrap items-center gap-2 px-4 py-2 bg-black text-white rounded shadow">
@@ -284,10 +305,19 @@
 
 </form>
 
-  <div class="bg-black p-6">
-  <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 gap-6">
-    
-    <!-- Add New Button -->
+ <div class="bg-black p-6 space-y-12">
+  
+  @php
+    $statuses = ['ongoing' => 'Ongoing', 'completed' => 'Completed', 'archived' => 'Archived'];
+    $groupedReads = $ReadModel->groupBy('status');
+  @endphp
+
+  @foreach ($statuses as $key => $label)
+    @if(isset($groupedReads[$key]) && $groupedReads[$key]->isNotEmpty())
+      <div>
+        <h2 class="text-2xl font-bold text-white mb-6">{{ $label }}</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 gap-6">
+             <!-- Add New Button -->
     <a href="{{ url('/add-to-read') }}" 
       class="relative inline-flex items-center justify-center px-6 py-3 font-bold text-white border-2 border-purple-500 rounded-md overflow-hidden group">
       <span class="absolute inset-0 w-full h-full transition-transform duration-300 ease-out transform translate-x-1 translate-y-1 bg-purple-600 group-hover:-translate-x-0 group-hover:-translate-y-0"></span>
@@ -296,79 +326,79 @@
         <i data-lucide="plus" class="w-7 h-7 z-10 text-white transition-all duration-100"></i>
       </span>
     </a>
+          @foreach ($groupedReads[$key] as $read)
+            <!-- CARD START -->
+            <div id="note-{{ $read->id }}" class="bg-gray-900 border border-purple-600 rounded-2xl shadow-lg p-4 text-white">
+              <div class="w-full h-50 overflow-hidden rounded-xl mb-4 relative">
+                <!-- Top Right Buttons -->
+                <div class="absolute top-2 right-2 flex flex-col gap-1 z-10">
+                  <!-- Delete -->
+                  <a href="{{ route('read.delete', $read->id) }}"
+                    class="bg-red-500 hover:bg-red-600 text-white font-bold rounded w-8 h-8 flex items-center justify-center transform scale-75 hover:scale-100 transition-transform duration-200">
+                    <i data-lucide="trash" class="w-3.5 h-3.5"></i>
+                  </a>
 
-   @foreach ($ReadModel as $read)
-<div id="note-{{ $read->id }}" class="bg-gray-900 border border-purple-600 rounded-2xl shadow-lg p-4 text-white">
- 
-      <div class="w-full h-50 overflow-hidden rounded-xl mb-4 relative">
-        <!-- Top Right Buttons -->
-       <div class="absolute top-2 right-2 flex flex-col gap-1 z-10">
-  <!-- Delete -->
-  <a href="{{ route('read.delete', $read->id) }}" 
-    class="bg-red-500 hover:bg-red-600 text-white font-bold rounded w-8 h-8 flex items-center justify-center 
-           transform scale-75 hover:scale-100 transition-transform duration-200">
-    <i data-lucide="trash" class="w-3.5 h-3.5"></i>
-  </a>
+                  <!-- Full Edit -->
+                  @php
+                    $params = [
+                      'id' => $read->id,
+                      'title' => $read->title,
+                      'volume' => $read->volume,
+                      'chapter' => $read->chapter,
+                      'page' => $read->page,
+                      'author' => $read->author,
+                      'category' => $read->category,
+                      'genre' => $read->genre,
+                      'status' => $read->status,
+                    ];
+                  @endphp
+                  <a href="{{ url('fullviewedit') . '?' . http_build_query($params) }}"
+                    class="btn-extended-edit bg-green-500 hover:bg-green-600 text-white font-bold rounded w-8 h-8 flex items-center justify-center transform scale-75 hover:scale-100 transition-transform duration-200">
+                    <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                  </a>
 
-  <!-- Edit (Full View) -->
-  @php
-    $params = [
-      'id' => $read->id,
-      'title' => $read->title,
-      'volume' => $read->volume,
-      'chapter' => $read->chapter,
-      'page' => $read->page,
-      'author' => $read->author,
-      'category' => $read->category,
-      'genre' => $read->genre,
-      'status' => $read->status,
-    ];
-  @endphp
-  <a href="{{ url('fullviewedit') . '?' . http_build_query($params) }}"
-    class="btn-extended-edit bg-green-500 hover:bg-green-600 text-white font-bold rounded w-8 h-8 flex items-center justify-center 
-           transform scale-75 hover:scale-100 transition-transform duration-200">
-    <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-  </a>
-  <!-- Quick Edit -->
-  <button class="btn-edit bg-blue-500 hover:bg-blue-600 text-white font-bold rounded w-8 h-8 flex items-center justify-center 
-          transform scale-75 hover:scale-100 transition-transform duration-200"
-          data-id="{{ $read->id }}"
-          data-title="{{ $read->title }}"
-          data-chapter="{{ $read->chapter }}"
-          data-page="{{ $read->page }}"
-          data-coverphoto="{{ $read->coverphoto }}">
-    <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
-  </button>
-</div>
-        <!-- Cover Image (Portrait) -->
-        <img src="{{ asset($read->coverphoto ? 'storage/' . $read->coverphoto : 'images/default.png') }}"
-             alt="{{ $read->title }}"
-             class="w-full h-full object-cover aspect-[2/3] transition-transform duration-300 hover:scale-105" />
+                  <!-- Quick Edit -->
+                  <button class="btn-edit bg-blue-500 hover:bg-blue-600 text-white font-bold rounded w-8 h-8 flex items-center justify-center transform scale-75 hover:scale-100 transition-transform duration-200"
+                          data-id="{{ $read->id }}"
+                          data-title="{{ $read->title }}"
+                          data-chapter="{{ $read->chapter }}"
+                          data-page="{{ $read->page }}"
+                          data-coverphoto="{{ $read->coverphoto }}">
+                    <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                  </button>
+                </div>
+
+                <!-- Cover Image -->
+                <img src="{{ asset($read->coverphoto ? 'storage/' . $read->coverphoto : 'images/default.png') }}"
+                     alt="{{ $read->title }}"
+                     class="w-full h-full object-cover aspect-[2/3] transition-transform duration-300 hover:scale-105" />
+              </div>
+
+              <!-- Title + Copy -->
+              <div class="flex items-center justify-between gap-2 mb-1">
+                <h3 class="text-xs font-semibold text-white truncate leading-tight" id="title-{{ $read->id }}">{{ $read->title }}</h3>
+                <button onclick="copyTitle('{{ $read->id }}')" class="text-purple-400 hover:text-purple-200 transition" title="Copy Title">
+                  <i data-lucide="copy" class="w-4 h-4"></i>
+                </button>
+              </div>
+
+              <p class="text-base text-purple-400 font-bold">
+                Chapter: <span class="text-white chapter-span">{{ $read->chapter }}</span>
+              </p>
+            </div>
+            <!-- CARD END -->
+          @endforeach
+        </div>
       </div>
+    @endif
+  @endforeach
 
-      <!-- Title and Chapter -->
-     <div class="flex items-center justify-between gap-2 mb-1">
-  <h3 class="text-xs font-semibold text-white truncate leading-tight" id="title-{{ $read->id }}">{{ $read->title }}</h3>
-  <button 
-    onclick="copyTitle('{{ $read->id }}')" 
-    class="text-purple-400 hover:text-purple-200 transition" 
-    title="Copy Title">
-    <i data-lucide="copy" class="w-4 h-4"></i>
-  </button>
-</div>
-
-    <p class="text-base text-purple-400 font-bold">
-    Chapter: <span class="text-white chapter-span">{{ $read->chapter }}</span>
-  </p>
-</div>
-@endforeach
-
-  </div>
+  <!-- Toast Message -->
   <div id="toast" class="fixed bottom-6 right-6 bg-purple-600 text-white px-4 py-2 rounded-lg shadow-lg opacity-0 pointer-events-none transition-opacity duration-300 z-50">
-  Title copied!
+    Title copied!
+  </div>
 </div>
 
-</div>
 <script>
   function copyTitle(id) {
     const titleText = document.getElementById('title-' + id).innerText;
@@ -439,9 +469,6 @@
     <input type="text" name="page" id="edit_page"
            class="w-full px-6 py-4 text-2xl bg-black text-white border border-purple-500 rounded focus:outline-none focus:ring-2 focus:ring-purple-600">
 </div>
-
-
-
              <div class="flex justify-center mt-6">
         <button type="submit"
                 class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2 rounded-lg transition-all duration-300">

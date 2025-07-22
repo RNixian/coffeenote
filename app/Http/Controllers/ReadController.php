@@ -59,8 +59,10 @@ class ReadController extends Controller
     $CategoryModel = CategoryModel::all();
     $GenreModel = GenreModel::orderBy('genre', 'asc')->get();
 
+    // Include 'status' in the filter list for session tracking
+    $filters = ['search', 'category', 'genre', 'letter', 'status'];
+
     // Store filters in session if present in request
-    $filters = ['search', 'category', 'genre', 'letter'];
     foreach ($filters as $filter) {
         if ($request->has($filter)) {
             session([$filter => $request->input($filter)]);
@@ -74,7 +76,9 @@ class ReadController extends Controller
     $category = $request->input('category', session('category'));
     $genre = $request->input('genre', session('genre'));
     $letter = $request->input('letter', session('letter'));
+    $status = $request->input('status', session('status'));
 
+    // Start query builder
     $query = ReadModel::query();
 
     // Apply filters
@@ -94,30 +98,38 @@ class ReadController extends Controller
         $query->where('category', $category);
     }
 
-  if (!empty($genre)) {
-    $genres = is_array($genre) ? $genre : [$genre];
-    $query->where(function ($q) use ($genres) {
-        foreach ($genres as $g) {
-            $q->orWhere('genre', 'like', '%' . $g . '%');
-        }
-    });
-}
+    if (!empty($genre)) {
+        $genres = is_array($genre) ? $genre : [$genre];
+        $query->where(function ($q) use ($genres) {
+            foreach ($genres as $g) {
+                $q->orWhere('genre', 'like', '%' . $g . '%');
+            }
+        });
+    }
 
+    if (!empty($status)) {
+        $query->where('status', $status);
+    }
 
     if (!empty($letter)) {
         $query->where('title', 'like', $letter . '%');
     }
 
+    // Order by title, alphanumeric ignoring special chars
     $query->orderByRaw("REGEXP_REPLACE(title, '[^a-zA-Z0-9]', '') ASC");
+
+    // Execute the query
     $ReadModel = $query->get();
     $totalnotes = $query->count();
-    return view('read', compact('ReadModel', 'CategoryModel', 'GenreModel', 'totalnotes'))
-        ->with([
-            'search' => $search,
-            'categorySelected' => $category,
-            'genreSelected' => $genre,
-            'letterSelected' => $letter
-        ]);
+
+    // Return to view
+    return view('read', compact('ReadModel', 'CategoryModel', 'GenreModel', 'totalnotes'))->with([
+        'search' => $search,
+        'categorySelected' => $category,
+        'genreSelected' => $genre,
+        'letterSelected' => $letter,
+        'statusSelected' => $status,
+    ]);
 }
 
 
