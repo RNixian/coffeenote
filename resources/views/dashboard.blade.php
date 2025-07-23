@@ -111,6 +111,36 @@
     <h2 class="text-lg font-semibold mb-6 text-center text-white">Chapters Read</h2>
     <h2 class="font-bold text-center text-6xl text-white">{{ $chaptersum }}</h2>
 </div>
+
+<!-- Category Count -->
+<div class="glitch-box rounded p-8 flex flex-col items-center justify-center w-[300px] h-[300px] overflow-y-auto">
+    <h2 class="text-lg font-semibold mb-4 text-center text-white">Category Count</h2>
+    <div class="text-white space-y-1 text-center">
+<ul class="text-white">
+    @forelse ($categoryCounts as $cat)
+        <li>{{ ucfirst($cat->category) }}: {{ $cat->total }}</li>
+    @empty
+        <li>No category data found.</li>
+    @endforelse
+</ul>
+    </div>
+</div>
+
+<!-- Top Genre -->
+<div class="glitch-box rounded p-8 flex flex-col items-center justify-center w-[300px] h-[300px] overflow-y-auto">
+    <h2 class="text-lg font-semibold mb-4 text-center text-white">Top Genres</h2>
+    <div class="text-white space-y-1 text-center">
+   <ul class="text-white">
+    @foreach ($topGenres as $genre => $count)
+        <li>{{ ucfirst($genre) }}: {{ $count }}</li>
+    @endforeach
+</ul>
+    </div>
+</div>
+
+
+
+
         </div>
 
 <!-- Recently Added --><!-- Recently Added --><!-- Recently Added --><!-- Recently Added --><!-- Recently Added -->

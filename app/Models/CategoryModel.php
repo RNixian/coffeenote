@@ -16,4 +16,6 @@ class CategoryModel extends Model
         'category',
     ];
 
+    
+
 }

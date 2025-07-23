@@ -262,29 +262,48 @@ public function dashread() {
         ->orderBy('updated_at', 'desc')
         ->take(7)
         ->get();
-
     $ReadModelss = ReadModel::where('status', 'archived')->take(7)->get();
+
     $totalnotes = ReadModel::count();
     $totalongoing = ReadModel::where('status', 'ongoing')->count();
     $totalarchived = ReadModel::where('status', 'archived')->count();
     $totalcompleted = ReadModel::where('status', 'completed')->count();
 
-    // Calculate the sum of whole number parts from the 'chapter' column
+    // Calculate chaptersum
     $chapters = ReadModel::pluck('chapter');
     $chaptersum = 0;
-
     foreach ($chapters as $chapterString) {
         $chaptersArray = explode(',', $chapterString);
-
         foreach ($chaptersArray as $chapter) {
             if (preg_match('/\d+/', trim($chapter), $matches)) {
                 $chaptersum += (int) $matches[0];
             }
         }
     }
-
-    // Subtract totalnotes from chaptersum
     $chaptersum = $chaptersum - $totalnotes;
+
+   $categoryCounts = ReadModel::select('category', \DB::raw('COUNT(*) as total'))
+    ->whereNotNull('category')
+    ->groupBy('category')
+    ->orderByDesc('total')
+    ->get();
+
+    // ✅ Top 5 Genres (splitting comma-separated values)
+    $allGenres = ReadModel::pluck('genre')->toArray();
+    $genreCount = [];
+
+    foreach ($allGenres as $genreString) {
+        $genres = array_map('trim', explode(',', $genreString));
+        foreach ($genres as $genre) {
+            if (!empty($genre)) {
+                $genreCount[$genre] = ($genreCount[$genre] ?? 0) + 1;
+            }
+        }
+    }
+
+    // Sort genres by count, get top 5
+    arsort($genreCount);
+    $topGenres = array_slice($genreCount, 0, 5, true); // [ 'action' => 10, 'romcom' => 9, ...]
 
     return view('dashboard', compact(
         'totalnotes',
@@ -294,9 +313,12 @@ public function dashread() {
         'ReadModel',
         'ReadModels',
         'chaptersum',
-        'ReadModelss'
+        'ReadModelss',
+        'categoryCounts',
+        'topGenres'
     ));
 }
+
 
 
 }

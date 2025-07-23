@@ -16,4 +16,6 @@ class GenreModel extends Model
         'genre',
     ];
 
+
+    
 }
