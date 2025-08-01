@@ -286,15 +286,15 @@
     <label class="block font-bold mb-1 text-xs uppercase tracking-wide">Filter by Genre</label>
     <div class="flex flex-wrap gap-1">
       @foreach ($GenreModel as $gnr)
-        <button type="button"
-          @click="toggle('{{ $gnr->genre }}')"
-          :class="selectedGenres.includes('{{ $gnr->genre }}') 
-            ? 'bg-blue-500 text-white border-blue-400' 
-            : 'bg-black text-white border-white'"
-          class="px-2 py-1 border rounded text-xs font-semibold shadow hover:bg-blue-400 hover:text-black transition">
-          {{ $gnr->genre }}
-        </button>
-      @endforeach
+  <button type="button"
+    @click="toggle('{{ $gnr }}')"
+    :class="selectedGenres.includes('{{ $gnr }}') 
+      ? 'bg-blue-500 text-white border-blue-400' 
+      : 'bg-black text-white border-white'"
+    class="px-2 py-1 border rounded text-xs font-semibold shadow hover:bg-blue-400 hover:text-black transition">
+    {{ $gnr }}
+  </button>
+@endforeach
     </div>
 
     <!-- Hidden inputs for selected genres -->
@@ -519,30 +519,49 @@
   const updateForm = document.getElementById('updateForm');
   const originalAction = updateForm.action;
 
+function formatNoteTitle(rawTitle) {
+  const titles = rawTitle.split(';').map(t => t.trim()).filter(Boolean);
+  if (!titles.length) return '';
+
+  // First title: bold + black
+  let formatted = `<span class="font-bold text-gray-400 text-2xl">${titles[0]}</span>`;
+
+  // Remaining titles in one line separated by semicolon
+  if (titles.length > 1) {
+    const rest = titles.slice(1).join('; ');
+    formatted += `<br><span class="text-black text-base">${rest}</span>`;
+  }
+
+  return formatted;
+}
+
+
+
+
   document.querySelectorAll('.btn-edit').forEach(button => {
     button.addEventListener('click', function () {
-    const id = this.dataset.id;
-const title = this.dataset.title;
-const chapter = this.dataset.chapter;
-const page = this.dataset.page;
-const coverphoto = this.dataset.coverphoto; // new line
+      const id = this.dataset.id;
+      const title = this.dataset.title;
+      const chapter = this.dataset.chapter;
+      const page = this.dataset.page;
+      const coverphoto = this.dataset.coverphoto;
 
-// Update form action and inputs
-updateForm.action = originalAction.replace('__ID__', id);
-document.getElementById('note_id').value = id;
-document.getElementById('note_title').textContent = title;
-document.getElementById('edit_chapter').value = chapter;
-document.getElementById('edit_page').value = page;
-// Set cover photo preview
-document.getElementById('note_coverphoto').src =
-  coverphoto ? 'storage/' + coverphoto : 'images/default.png';
+      updateForm.action = originalAction.replace('__ID__', id);
+      document.getElementById('note_id').value = id;
 
+      // Format and inject the title HTML
+      document.getElementById('note_title').innerHTML = formatNoteTitle(title);
+
+      document.getElementById('edit_chapter').value = chapter;
+      document.getElementById('edit_page').value = page;
+      document.getElementById('note_coverphoto').src = coverphoto
+        ? 'storage/' + coverphoto
+        : 'images/default.png';
 
       updateModal.classList.remove('hidden');
       setTimeout(() => {
         document.getElementById('edit_chapter').focus();
-        
-      }, 100); // slight delay ensures element is rendered before focus
+      }, 100);
 
       document.body.classList.add('overflow-hidden');
     });
@@ -562,6 +581,7 @@ document.getElementById('note_coverphoto').src =
     }
   });
 </script>
+
 
 
 </body>

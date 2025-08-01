@@ -27,46 +27,29 @@
     <nav id="navLinks"
       class="hidden absolute top-full left-0 w-full bg-black md:static md:flex md:items-center md:gap-4 md:w-auto transition-all duration-300">
       <ul class="flex flex-col md:flex-row md:items-center md:gap-6 w-full md:w-auto text-white font-semibold uppercase">
-        <li>
-          <a href="{{ url('/') }}" class="block px-4 py-2 hover:text-blue-400 hover:bg-opacity-20 hover:bg-white rounded glitch-text">
-            <i data-lucide="layout-dashboard" class="inline w-4 h-4 text-blue-400"></i> Dashboard
-          </a>
-        </li>
-        <li>
-          <a href="{{ url('/read') }}" class="block px-4 py-2 hover:text-blue-400 hover:bg-opacity-20 hover:bg-white rounded glitch-text">
-            <i data-lucide="graduation-cap" class="inline w-4 h-4 text-yellow-400"></i> Reader's Note
-          </a>
-        </li>
-        <li>
-          <div x-data="{ open: false }" class="relative inline-block text-left">
-            <button @click="open = !open" class="p-2 rounded hover:bg-white-700 bg-white-600 shadow-glitch">
-  <i data-lucide="menu" class="w-5 h-5 text-neon-blue glitch-text"></i>
-</button>
+       <ul class="flex flex-col md:flex-row md:items-center md:gap-6 w-full md:w-auto text-white font-semibold uppercase">
+  <li>
+    <a href="{{ url('/') }}" class="block px-4 py-2 hover:text-blue-400 hover:bg-opacity-20 hover:bg-white rounded glitch-text">
+      <i data-lucide="layout-dashboard" class="inline w-4 h-4 text-blue-400"></i> Dashboard
+    </a>
+  </li>
+  <li>
+    <a href="{{ url('/read') }}" class="block px-4 py-2 hover:text-blue-400 hover:bg-opacity-20 hover:bg-white rounded glitch-text">
+      <i data-lucide="book-open-text" class="inline w-4 h-4 text-yellow-400"></i> Reader's Note
+    </a>
+  </li>
+  <li>
+    <a href="{{ url('/setup-category') }}" class="block px-4 py-2 hover:text-blue-400 hover:bg-opacity-20 hover:bg-white rounded glitch-text">
+      <i data-lucide="layers" class="inline w-4 h-4 text-purple-400"></i> Category
+    </a>
+  </li>
+  <li>
+    <a href="{{ url('/setup-genre') }}" class="block px-4 py-2 hover:text-blue-400 hover:bg-opacity-20 hover:bg-white rounded glitch-text">
+      <i data-lucide="music-2" class="inline w-4 h-4 text-purple-400"></i> Genre
+    </a>
+  </li>
+</ul>
 
-
-           <ul
-  x-show="open"
-  @click.away="open = false"
-  x-transition
-  class="absolute right-0 mt-2 w-48 bg-black border border-purple-500 text-white rounded shadow-lg z-10"
->
-<div x-data="{ open: false }" class="relative inline-block text-left">
-
-              <li>
-                <a href="{{ url('/setup-category') }}"
-                   class="block px-4 py-2 hover:text-blue-400 hover:bg-opacity-20 hover:bg-white rounded glitch-text">
-                  <i data-lucide="users" class="inline w-4 h-4 text-purple-400"></i> Category
-                </a>
-              </li>
-              <li>
-                <a href="{{ url('/setup-genre') }}"
-                   class="block px-4 py-2 hover:text-blue-400 hover:bg-opacity-20 hover:bg-white rounded glitch-text">
-                  <i data-lucide="users" class="inline w-4 h-4 text-purple-400"></i> Genre
-                </a>
-              </li>
-            </ul>
-          </div>
-        </li>
       </ul>
     </nav>
   </div>

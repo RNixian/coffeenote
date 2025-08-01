@@ -106,131 +106,119 @@
  <div class="bg-gray-900 border border-purple-600 rounded-2xl shadow-2xl w-full px-6 py-8 text-white">
 
 
-    <h2 class="text-3xl font-bold mb-6 text-purple-400">Edit Extended Note</h2>
+    <h2 class="text-3xl font-bold mb-6 text-white">Full Edit Note</h2>
 
-  <form id="extendedUpdateForm" action="{{ route('read.fullupdate', ['id' => $note->id]) }}" method="POST" enctype="multipart/form-data">
-      @csrf
-      @method('PUT')
-      <input type="hidden" name="id" id="extended_note_id" value="">
+ <form id="extendedUpdateForm" action="{{ route('read.fullupdate', ['id' => $note->id]) }}" method="POST" enctype="multipart/form-data" class="w-full h-full p-3 bg-gray-900 rounded-xl space-y-1">
+  @csrf
+  @method('PUT')
+  <input type="hidden" name="id" id="extended_note_id" value="{{ $note->id }}">
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-  <!-- 1st Row: Title, Chapter, Page -->
- <div>
-  <label for="extended_title" class="block font-bold mb-1">Title</label>
-  <textarea name="title" id="extended_title" class="w-full px-4 py-2 bg-black text-white border border-purple-500 rounded" required autofocus rows="3"></textarea>
-</div>
+  <div class="flex flex-col md:flex-row gap-6">
+    <!-- Left Container -->
+    <div class="w-full md:w-1/3 bg-gray-800 p-6 rounded-xl border border-purple-600 space-y-4">
+      <div>
+        <label for="extended_title" class="block font-bold text-white">Title</label>
+        <textarea name="title" id="extended_title" rows="4" class="w-full h-40 px-2 py-1 bg-black border border-gray-300 rounded text-white focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none">{{ old('title', $note->title) }}</textarea>
+      </div>
 
- <div>
-  <label for="extended_author" class="block font-bold mb-1">Author</label>
-  <textarea name="author" id="extended_author" class="w-full px-4 py-2 bg-black text-white border border-purple-500 rounded" autofocus rows="3"></textarea>
-</div>
-</div>
+      <div class="flex flex-col md:flex-row gap-6">
+        <div class="flex-1">
+          <label for="extended_chapter" class="block font-bold text-white">Chapter</label>
+          <input type="text" name="chapter" id="extended_chapter" value="{{ old('chapter', $note->chapter) }}" class="w-full px-3 py-2 bg-black border border-gray-300 rounded text-white focus:outline-none focus:ring-2 focus:ring-pink-400">
+        </div>
 
-<div class="grid grid-cols-1 md:grid-cols-5 gap-4 mt-4">
-  <!-- 2nd Row: Volume, Author, Category -->
-  <div>
-    <label for="extended_chapter" class="block font-bold mb-1">Chapter</label>
-    <input type="text" name="chapter" id="extended_chapter" class="w-full px-4 py-2 bg-black text-white border border-purple-500 rounded">
-  </div>
+        <div class="flex-1">
+          <label for="extended_status" class="block font-bold text-white">Status</label>
+          <select name="status" id="extended_status" class="w-full px-3 py-2 bg-black border border-gray-300 rounded text-white focus:outline-none focus:ring-2 focus:ring-pink-400">
+            @php $selectedStatus = old('status', $note->status ?? ''); @endphp
+            <option value="ongoing" {{ $selectedStatus == 'ongoing' ? 'selected' : '' }}>Ongoing</option>
+            <option value="completed" {{ $selectedStatus == 'completed' ? 'selected' : '' }}>Completed</option>
+            <option value="archived" {{ $selectedStatus == 'archived' ? 'selected' : '' }}>Archived</option>
+          </select>
+        </div>
+      </div>
 
-  <div>
-    <label for="extended_page" class="block font-bold mb-1">Page</label>
-    <input type="text" name="page" id="extended_page" class="w-full px-4 py-2 bg-black text-white border border-purple-500 rounded">
-  </div>
-
-  <div>
-    <label for="extended_volume" class="block font-bold mb-1">Volume</label>
-    <input type="text" name="volume" id="extended_volume" class="w-full px-4 py-2 bg-black text-white border border-purple-500 rounded">
-  </div>
-
-  <div>
-    <label for="extended_category" class="block font-bold mb-1">Category</label>
-    <select name="category" id="extended_category" class="w-full bg-black border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
-      <option value="">-- Select Category --</option>
-      @foreach ($CategoryModel as $ctgry)
-        <option value="{{ $ctgry->category }}" {{ request('category') == $ctgry->category ? 'selected' : '' }}>{{ $ctgry->category }}</option>
-      @endforeach
-    </select>
-  </div>
- <div>
-  <label for="extended_status" class="block font-bold mb-1">Status</label>
-  @php $selectedStatus = old('status', $request->status ?? ''); @endphp
-
-<select name="status" id="extended_status" class="w-full px-4 py-2 bg-black text-white border border-purple-500 rounded">
-  <option value="ongoing" {{ $selectedStatus == 'ongoing' ? 'selected' : '' }}>Ongoing</option>
-  <option value="completed" {{ $selectedStatus == 'completed' ? 'selected' : '' }}>Completed</option>
-  <option value="archived" {{ $selectedStatus == 'archived' ? 'selected' : '' }}>Archived</option>
-</select>
-</div>
-
-</div>
-
-
-<!-- 3rd Row: genre + coverphoto + Save Button -->
-<div class="grid grid-cols-1 md:grid-cols-10 gap-4 mt-6 items-end">
-  @php
-    $selectedGenres = request()->input('genre', []);
-    if (!is_array($selectedGenres)) {
-      $selectedGenres = explode(',', $selectedGenres);
-    }
-  @endphp
-
-  <!-- Genre Section (70%) -->
-  <div class="mt-4 md:col-span-7"
-       x-data="{
-         genres: {{ json_encode($GenreModel->pluck('genre')) }},
-         selectedGenres: {{ json_encode($selectedGenres) }},
-         toggle(genre) {
-           if (this.selectedGenres.includes(genre)) {
-             this.selectedGenres = this.selectedGenres.filter(g => g !== genre);
-           } else {
-             this.selectedGenres.push(genre);
-           }
-         }
-       }">
-
-    <label for="extended_genre" class="block font-bold mb-1">Genre</label>
-    <div class="flex flex-wrap gap-1">
-      <template x-for="genre in genres" :key="genre">
-        <button
-          type="button"
-          @click="toggle(genre)"
-          :class="selectedGenres.includes(genre)
-            ? 'bg-blue-500 text-white border-blue-400'
-            : 'bg-black text-white border-white'"
-          class="px-2 py-1 border rounded text-xs font-semibold shadow hover:bg-blue-400 hover:text-black transition"
-          x-text="genre">
-        </button>
-      </template>
+      <!-- Cover Photo -->
+      <div class="flex flex-col md:flex-row gap-6">
+        <div>
+          <label for="coverphoto" class="block font-bold text-white">Cover Photo</label>
+          <input type="file" name="coverphoto" id="coverphoto" accept="image/*" onchange="previewCoverPhoto(event)" class="w-full text-white">
+        </div>
+        <div id="preview" class="mt-2">
+          <img id="note_coverphoto" src="{{ $note->coverphoto ? asset('storage/' . $note->coverphoto) : asset('images/default.png') }}" alt="Cover Preview" class="w-20 h-20 object-cover rounded cursor-pointer hover:ring-2 hover:ring-blue-400 transition-all duration-300">
+        </div>
+      </div>
     </div>
 
-    <!-- Hidden inputs -->
-    <template x-for="genre in selectedGenres" :key="genre">
-      <input type="hidden" name="genre[]" :value="genre">
-    </template>
+    <!-- Right Container -->
+    <div class="w-full md:w-2/3 bg-gray-800 p-6 rounded-xl border border-purple-600 space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div>
+          <label for="extended_volume" class="block font-bold text-white">Volume</label>
+          <input type="text" name="volume" id="extended_volume" value="{{ old('volume', $note->volume) }}" class="w-full px-3 py-2 bg-black border border-gray-300 rounded text-white focus:outline-none focus:ring-2 focus:ring-pink-400">
+        </div>
+        <div>
+          <label for="extended_page" class="block font-bold text-white">Page</label>
+          <input type="text" name="page" id="extended_page" value="{{ old('page', $note->page) }}" class="w-full px-3 py-2 bg-black border border-gray-300 rounded text-white focus:outline-none focus:ring-2 focus:ring-pink-400">
+        </div>
+        <div>
+          <label for="extended_author" class="block font-bold text-white">Author</label>
+          <input type="text" name="author" id="extended_author" value="{{ old('author', $note->author) }}" class="w-full px-3 py-2 bg-black border border-gray-300 rounded text-white focus:outline-none focus:ring-2 focus:ring-blue-400">
+        </div>
+        <div>
+          <label for="extended_category" class="block font-bold text-white">Category</label>
+          <select name="category" id="extended_category" class="w-full bg-black border border-gray-300 rounded px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-400">
+            <option value="">-- Select --</option>
+            @foreach ($CategoryModel as $ctgry)
+              <option value="{{ $ctgry->category }}" {{ old('category', $note->category) == $ctgry->category ? 'selected' : '' }}>{{ $ctgry->category }}</option>
+            @endforeach
+          </select>
+        </div>
+      </div>
+
+      <!-- Genre -->
+      <div x-data="{
+        selected: {{ json_encode(explode(',', old('genre', is_array($note->genre) ? implode(',', $note->genre) : $note->genre)) ?? []) }},
+        toggle(genre) {
+          if (this.selected.includes(genre)) {
+            this.selected = this.selected.filter(g => g !== genre);
+          } else {
+            this.selected.push(genre);
+          }
+        }
+      }">
+        <label class="block font-bold text-white text-sm mb-1">Genre</label>
+        <div class="flex flex-wrap gap-2">
+          @foreach ($GenreModel as $gnr)
+            <button
+              type="button"
+              class="px-1 py-.5 rounded border text-xs font-medium transition-all"
+              :class="selected.includes('{{ $gnr->genre }}') 
+                ? 'bg-white text-black border-black' 
+                : 'bg-gray-800 text-gray-300 border-gray-600'"
+              @click="toggle('{{ $gnr->genre }}')"
+            >
+              {{ $gnr->genre }}
+            </button>
+          @endforeach
+        </div>
+
+        <!-- Hidden inputs -->
+        <template x-for="genre in selected" :key="genre">
+          <input type="hidden" name="genre[]" :value="genre">
+        </template>
+      </div>
+    </div>
   </div>
 
-  <!-- Cover Photo Section (20%) -->
-<div class="text-left md:col-span-2">
-  <label class="block font-bold mb-1">Cover Image</label>
-  <input type="file" name="coverphoto" accept="image/*"
-         class="w-full mt-1 border p-1 text-sm rounded"
-         onchange="previewCoverPhoto(event)" />
-  <img id="note_coverphoto"
-       src="{{ $note->coverphoto ? asset('storage/' . $note->coverphoto) : asset('images/default.png') }}"
-       alt="Cover Photo Preview"
-       class="mx-auto mb-2 w-32 h-32 object-cover rounded border" />
-</div>
-
-
-  <!-- Submit Button Section (10%) -->
-  <div class="flex justify-end mt-2 md:mt-0 md:col-span-1">
-    <button type="submit"
-            class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2 rounded-lg transition-all duration-300 w-full md:w-auto">
+  <!-- Submit Button -->
+  <div class="w-full flex justify-center mt-4">
+    <button type="submit" class="bg-white border border-black text-black hover:bg-gray-200 px-6 py-3 font-bold rounded shadow transition-all duration-300">
       Save Changes
     </button>
   </div>
-</div>
+</form>
+
 
 <script>
   function previewCoverPhoto(event) {
@@ -242,7 +230,6 @@
   }
 </script>
 
-    </form>
   </div>
 
 <script>

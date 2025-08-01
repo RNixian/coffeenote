@@ -57,7 +57,16 @@ class ReadController extends Controller
  public function read(Request $request)
 {
     $CategoryModel = CategoryModel::all();
-    $GenreModel = GenreModel::orderBy('genre', 'asc')->get();
+   $genreFromReadModel = ReadModel::pluck('genre')->toArray();
+
+// Split comma-separated genres and collect unique values
+$genres = collect($genreFromReadModel)
+    ->flatMap(fn($item) => explode(',', $item))
+    ->map(fn($g) => trim($g))
+    ->unique()
+    ->sort()
+    ->values();
+
 
     // Include 'status' in the filter list for session tracking
     $filters = ['search', 'category', 'genre', 'letter', 'status'];
@@ -122,14 +131,19 @@ class ReadController extends Controller
     $ReadModel = $query->get();
     $totalnotes = $query->count();
 
-    // Return to view
-    return view('read', compact('ReadModel', 'CategoryModel', 'GenreModel', 'totalnotes'))->with([
-        'search' => $search,
-        'categorySelected' => $category,
-        'genreSelected' => $genre,
-        'letterSelected' => $letter,
-        'statusSelected' => $status,
-    ]);
+    return view('read', compact(
+    'ReadModel', 
+    'CategoryModel', 
+    'totalnotes'
+))->with([
+    'GenreModel' => $genres, // now contains only used genres
+    'search' => $search,
+    'categorySelected' => $category,
+    'genreSelected' => $genre,
+    'letterSelected' => $letter,
+    'statusSelected' => $status,
+]);
+
 }
 
 
@@ -262,7 +276,13 @@ public function dashread() {
         ->orderBy('updated_at', 'desc')
         ->take(7)
         ->get();
-    $ReadModelss = ReadModel::where('status', 'archived')->take(7)->get();
+
+
+  $ReadModelss = ReadModel::where('status', 'archived')
+    ->orderBy('created_at', 'desc') // or any field you want to sort by
+    ->take(7)
+    ->get();
+
 
     $totalnotes = ReadModel::count();
     $totalongoing = ReadModel::where('status', 'ongoing')->count();

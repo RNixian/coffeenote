@@ -21,7 +21,7 @@ class SetupController extends Controller
 
     public function setupgenre()
     {
-        $GenreModel = GenreModel::paginate(15, ['*'], 'genre_page');
+        $GenreModel = GenreModel::paginate(19, ['*'], 'genre_page');
 
         
         return view('genre', compact('GenreModel'));
