@@ -294,7 +294,7 @@
     class="px-2 py-1 border rounded text-xs font-semibold shadow hover:bg-blue-400 hover:text-black transition">
     {{ $gnr }}
   </button>
-@endforeach
+@endforeach 
     </div>
 
     <!-- Hidden inputs for selected genres -->
@@ -306,7 +306,6 @@
 </form>
 
  <div class="bg-black p-6 space-y-12">
-  
   @php
     $statuses = ['ongoing' => 'Ongoing', 'completed' => 'Completed', 'archived' => 'Archived'];
     $groupedReads = $ReadModel->groupBy('status');
@@ -316,59 +315,62 @@
     @if(isset($groupedReads[$key]) && $groupedReads[$key]->isNotEmpty())
       <div>
         <h2 class="text-2xl font-bold text-white mb-6">{{ $label }}</h2>
-        <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 gap-6">
-             <!-- Add New Button -->
-    <a href="{{ url('/add-to-read') }}" 
-      class="relative inline-flex items-center justify-center px-6 py-3 font-bold text-white border-2 border-purple-500 rounded-md overflow-hidden group">
-      <span class="absolute inset-0 w-full h-full transition-transform duration-300 ease-out transform translate-x-1 translate-y-1 bg-purple-600 group-hover:-translate-x-0 group-hover:-translate-y-0"></span>
-      <span class="absolute inset-0 w-full h-full bg-black border-2 border-white group-hover:opacity-0"></span>
-      <span class="relative flex items-center justify-center">
-        <i data-lucide="plus" class="w-7 h-7 z-10 text-white transition-all duration-100"></i>
-      </span>
-    </a>
+        <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 gap-6 overflow-visible relative z-0">
+
+          <!-- Add New Button -->
+          <a href="{{ url('/add-to-read') }}" 
+            class="relative inline-flex items-center justify-center px-6 py-3 font-bold text-white border-2 border-purple-500 rounded-md overflow-hidden group">
+            <span class="absolute inset-0 w-full h-full transition-transform duration-300 ease-out transform translate-x-1 translate-y-1 bg-purple-600 group-hover:-translate-x-0 group-hover:-translate-y-0"></span>
+            <span class="absolute inset-0 w-full h-full bg-black border-2 border-white group-hover:opacity-0"></span>
+            <span class="relative flex items-center justify-center">
+              <i data-lucide="plus" class="w-7 h-7 z-10 text-white transition-all duration-100"></i>
+            </span>
+          </a>
+
           @foreach ($groupedReads[$key] as $read)
             <!-- CARD START -->
-            <div id="note-{{ $read->id }}" class="bg-gray-900 border border-purple-600 rounded-2xl shadow-lg p-4 text-white">
+            <div id="note-{{ $read->id }}" class="relative bg-gray-900 border border-purple-600 rounded-2xl shadow-lg p-4 text-white overflow-visible z-0">
+
+              <!-- Floating Buttons Container (top-right outside the card) -->
+              <div class="absolute -top--10 -right-4 flex flex-col gap-1 z-50">
+                <!-- Delete -->
+                <a href="{{ route('read.delete', $read->id) }}"
+                  class="bg-red-500 hover:bg-red-600 text-white font-bold rounded w-7 h-7 flex items-center justify-center transition-transform duration-200">
+                  <i data-lucide="trash" class="w-3.5 h-3.5"></i>
+                </a>
+
+                <!-- Full Edit -->
+                @php
+                  $params = [
+                    'id' => $read->id,
+                    'title' => $read->title,
+                    'volume' => $read->volume,
+                    'chapter' => $read->chapter,
+                    'page' => $read->page,
+                    'author' => $read->author,
+                    'category' => $read->category,
+                    'genre' => $read->genre,
+                    'status' => $read->status,
+                  ];
+                @endphp
+                <a href="{{ url('fullviewedit') . '?' . http_build_query($params) }}"
+                  class="bg-green-500 hover:bg-green-600 text-white font-bold rounded w-7 h-7 flex items-center justify-center transition-transform duration-200">
+                  <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                </a>
+
+                <!-- Quick Edit -->
+                <button class="btn-edit bg-blue-500 hover:bg-blue-600 text-white font-bold rounded w-7 h-7 flex items-center justify-center transition-transform duration-200"
+                        data-id="{{ $read->id }}"
+                        data-title="{{ $read->title }}"
+                        data-chapter="{{ $read->chapter }}"
+                        data-page="{{ $read->page }}"
+                        data-coverphoto="{{ $read->coverphoto }}">
+                  <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+
+              <!-- Cover Image -->
               <div class="w-full h-50 overflow-hidden rounded-xl mb-4 relative">
-                <!-- Top Right Buttons -->
-                <div class="absolute top-2 right-2 flex flex-col gap-1 z-10">
-                  <!-- Delete -->
-                  <a href="{{ route('read.delete', $read->id) }}"
-                    class="bg-red-500 hover:bg-red-600 text-white font-bold rounded w-8 h-8 flex items-center justify-center transform scale-75 hover:scale-100 transition-transform duration-200">
-                    <i data-lucide="trash" class="w-3.5 h-3.5"></i>
-                  </a>
-
-                  <!-- Full Edit -->
-                  @php
-                    $params = [
-                      'id' => $read->id,
-                      'title' => $read->title,
-                      'volume' => $read->volume,
-                      'chapter' => $read->chapter,
-                      'page' => $read->page,
-                      'author' => $read->author,
-                      'category' => $read->category,
-                      'genre' => $read->genre,
-                      'status' => $read->status,
-                    ];
-                  @endphp
-                  <a href="{{ url('fullviewedit') . '?' . http_build_query($params) }}"
-                    class="btn-extended-edit bg-green-500 hover:bg-green-600 text-white font-bold rounded w-8 h-8 flex items-center justify-center transform scale-75 hover:scale-100 transition-transform duration-200">
-                    <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-                  </a>
-
-                  <!-- Quick Edit -->
-                  <button class="btn-edit bg-blue-500 hover:bg-blue-600 text-white font-bold rounded w-8 h-8 flex items-center justify-center transform scale-75 hover:scale-100 transition-transform duration-200"
-                          data-id="{{ $read->id }}"
-                          data-title="{{ $read->title }}"
-                          data-chapter="{{ $read->chapter }}"
-                          data-page="{{ $read->page }}"
-                          data-coverphoto="{{ $read->coverphoto }}">
-                    <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
-                  </button>
-                </div>
-
-                <!-- Cover Image -->
                 <img src="{{ asset($read->coverphoto ? 'storage/' . $read->coverphoto : 'images/default.png') }}"
                      alt="{{ $read->title }}"
                      class="w-full h-full object-cover aspect-[2/3] transition-transform duration-300 hover:scale-105" />
@@ -524,12 +526,12 @@ function formatNoteTitle(rawTitle) {
   if (!titles.length) return '';
 
   // First title: bold + black
-  let formatted = `<span class="font-bold text-gray-400 text-2xl">${titles[0]}</span>`;
+  let formatted = `<span class="font-bold text-white text-2xl">${titles[0]}</span>`;
 
   // Remaining titles in one line separated by semicolon
   if (titles.length > 1) {
     const rest = titles.slice(1).join('; ');
-    formatted += `<br><span class="text-black text-base">${rest}</span>`;
+    formatted += `<br><span class="text-gray-400 text-base">${rest}</span>`;
   }
 
   return formatted;
