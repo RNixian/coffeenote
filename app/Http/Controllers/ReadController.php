@@ -54,98 +54,96 @@ class ReadController extends Controller
 
 
     // VIEW ALL
- public function read(Request $request)
-{
-    $CategoryModel = CategoryModel::all();
-   $genreFromReadModel = ReadModel::pluck('genre')->toArray();
-
-// Split comma-separated genres and collect unique values
-$genres = collect($genreFromReadModel)
-    ->flatMap(fn($item) => explode(',', $item))
-    ->map(fn($g) => trim($g))
-    ->unique()
-    ->sort()
-    ->values();
-
-
-    // Include 'status' in the filter list for session tracking
-    $filters = ['search', 'category', 'genre', 'letter', 'status'];
-
-    // Store filters in session if present in request
-    foreach ($filters as $filter) {
-        if ($request->has($filter)) {
-            session([$filter => $request->input($filter)]);
-        } elseif (!session()->has($filter)) {
-            session([$filter => null]); // ensure default null if not present
-        }
-    }
-
-    // Retrieve filter values (from request or session fallback)
-    $search = $request->input('search', session('search'));
-    $category = $request->input('category', session('category'));
-    $genre = $request->input('genre', session('genre'));
-    $letter = $request->input('letter', session('letter'));
-    $status = $request->input('status', session('status'));
-
-    // Start query builder
-    $query = ReadModel::query();
-
-    // Apply filters
-    if (!empty($search)) {
-        $query->where(function ($q) use ($search) {
-            $q->where('title', 'like', '%' . $search . '%')
-              ->orWhere('category', 'like', '%' . $search . '%')
-              ->orWhere('genre', 'like', '%' . $search . '%')
-              ->orWhere('author', 'like', '%' . $search . '%')
-              ->orWhere('status', 'like', '%' . $search . '%')
-              ->orWhere('created_at', 'like', '%' . $search . '%')
-              ->orWhere('updated_at', 'like', '%' . $search . '%');
-        });
-    }
-
-    if (!empty($category)) {
-        $query->where('category', $category);
-    }
-
-    if (!empty($genre)) {
-        $genres = is_array($genre) ? $genre : [$genre];
-        $query->where(function ($q) use ($genres) {
-            foreach ($genres as $g) {
-                $q->orWhere('genre', 'like', '%' . $g . '%');
+    public function read(Request $request)
+    {
+        $CategoryModel = CategoryModel::all();
+    
+        // ✅ Always pull ALL genres from DB (unfiltered)
+        $genreFromReadModel = ReadModel::all()->pluck('genre')->toArray();
+    
+        // Split comma-separated genres and collect unique values
+        $genres = collect($genreFromReadModel)
+            ->flatMap(fn($item) => explode(',', $item))
+            ->map(fn($g) => trim($g))
+            ->unique()
+            ->sort()
+            ->values();
+    
+        // Include 'status' in the filter list for session tracking
+        $filters = ['search', 'category', 'genre', 'letter', 'status'];
+    
+        foreach ($filters as $filter) {
+            if ($request->has($filter)) {
+                session([$filter => $request->input($filter)]);
+            } elseif (!session()->has($filter)) {
+                session([$filter => null]);
             }
-        });
+        }
+    
+        // Retrieve filter values (from request or session fallback)
+        $search   = $request->input('search', session('search'));
+        $category = $request->input('category', session('category'));
+        $genre    = $request->input('genre', session('genre'));
+        $letter   = $request->input('letter', session('letter'));
+        $status   = $request->input('status', session('status'));
+    
+        // Start query builder for filtering
+        $query = ReadModel::query();
+    
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', '%' . $search . '%')
+                  ->orWhere('category', 'like', '%' . $search . '%')
+                  ->orWhere('genre', 'like', '%' . $search . '%')
+                  ->orWhere('author', 'like', '%' . $search . '%')
+                  ->orWhere('status', 'like', '%' . $search . '%')
+                  ->orWhere('created_at', 'like', '%' . $search . '%')
+                  ->orWhere('updated_at', 'like', '%' . $search . '%');
+            });
+        }
+    
+        if (!empty($category)) {
+            $query->where('category', $category);
+        }
+    
+        if (!empty($genre)) {
+            $genresFilter = is_array($genre) ? $genre : [$genre];
+            $query->where(function ($q) use ($genresFilter) {
+                foreach ($genresFilter as $g) {
+                    $q->orWhere('genre', 'like', '%' . $g . '%');
+                }
+            });
+        }
+    
+        if (!empty($status)) {
+            $query->where('status', $status);
+        }
+    
+        if (!empty($letter)) {
+            $query->where('title', 'like', $letter . '%');
+        }
+    
+        // Order by title, alphanumeric ignoring special chars
+        $query->orderByRaw("REGEXP_REPLACE(title, '[^a-zA-Z0-9]', '') ASC");
+    
+        // Execute the query
+        $ReadModel   = $query->get();
+        $totalnotes  = $query->count();
+    
+        return view('read', compact(
+            'ReadModel',
+            'CategoryModel',
+            'totalnotes'
+        ))->with([
+            'GenreModel' => $genres,   // ✅ this is always the WHOLE genre list
+            'search' => $search,
+            'categorySelected' => $category,
+            'genreSelected' => $genre,
+            'letterSelected' => $letter,
+            'statusSelected' => $status,
+        ]);
     }
-
-    if (!empty($status)) {
-        $query->where('status', $status);
-    }
-
-    if (!empty($letter)) {
-        $query->where('title', 'like', $letter . '%');
-    }
-
-    // Order by title, alphanumeric ignoring special chars
-    $query->orderByRaw("REGEXP_REPLACE(title, '[^a-zA-Z0-9]', '') ASC");
-
-    // Execute the query
-    $ReadModel = $query->get();
-    $totalnotes = $query->count();
-
-    return view('read', compact(
-    'ReadModel', 
-    'CategoryModel', 
-    'totalnotes'
-))->with([
-    'GenreModel' => $genres, // now contains only used genres
-    'search' => $search,
-    'categorySelected' => $category,
-    'genreSelected' => $genre,
-    'letterSelected' => $letter,
-    'statusSelected' => $status,
-]);
-
-}
-
+    
 
 
 
@@ -274,14 +272,10 @@ public function dashread() {
     $ReadModel = ReadModel::orderBy('created_at', 'desc')->take(7)->get();
     $ReadModels = ReadModel::whereColumn('updated_at', '!=', 'created_at')
         ->orderBy('updated_at', 'desc')
-        ->take(7)
+        ->take(21)
         ->get();
 
 
-  $ReadModelss = ReadModel::where('status', 'archived')
-    ->orderBy('created_at', 'desc') // or any field you want to sort by
-    ->take(7)
-    ->get();
 
 
     $totalnotes = ReadModel::count();
@@ -333,7 +327,7 @@ public function dashread() {
         'ReadModel',
         'ReadModels',
         'chaptersum',
-        'ReadModelss',
+      
         'categoryCounts',
         'topGenres'
     ));

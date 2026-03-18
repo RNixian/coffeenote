@@ -2,11 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
   <title>Dashboard</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-  
+  <link href="/css/tailwind.min.css" rel="stylesheet" />
+<script src="/js/tailwind.js"></script>
+
+<script src="/js/alpine.min.js" defer></script>
+<script src="/js/lucide.js"></script>
+
   <style>
     body {
       background-color: #000000;
@@ -168,26 +172,6 @@
   <h2 class="glitch mb-10 text-center text-[70px]" data-text="Recently Updated">Recently Updated</h2>
   <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-7 gap-6">
     @foreach ($ReadModels as $read)
-    <div class="bg-gray-900 border border-purple-600 rounded-2xl shadow-lg p-4 text-white">
-      <div class="w-full h-48 overflow-hidden rounded-xl mb-4 relative">
-        <img src="{{ asset($read->coverphoto ? 'storage/' . $read->coverphoto : 'images/default.png') }}"
-             alt="{{ $read->title }}"
-             class="w-full h-full object-cover transition-transform duration-300 hover:scale-105" />
-      </div>
-      <h3 class="text-base font-semibold text-white mb-1 truncate">{{ $read->title }}</h3>
-      <p class="text-lg text-purple-400 font-bold">
-        Chapter: <span class="text-white">{{ $read->chapter }}</span>
-      </p>   
-    </div>
-    @endforeach
-  </div>
-</div>
-
-<!-- Recently Archived -->
-<div class="bg-black p-6">
-  <h2 class="glitch mb-10 text-center text-[70px]" data-text="Recently Archived">Recently Archived</h2>
-  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-7 gap-6">
-    @foreach ($ReadModelss as $read)
     <div class="bg-gray-900 border border-purple-600 rounded-2xl shadow-lg p-4 text-white">
       <div class="w-full h-48 overflow-hidden rounded-xl mb-4 relative">
         <img src="{{ asset($read->coverphoto ? 'storage/' . $read->coverphoto : 'images/default.png') }}"

@@ -164,12 +164,6 @@
    animation: flash-border 2s ease-out infinite;
 }
 
-
-.flash {
-
-}
-
-
   </style>
 </head>
 
@@ -376,18 +370,28 @@
                      class="w-full h-full object-cover aspect-[2/3] transition-transform duration-300 hover:scale-105" />
               </div>
 
-              <!-- Title + Copy -->
-              <div class="flex items-center justify-between gap-2 mb-1">
-                <h3 class="text-xs font-semibold text-white truncate leading-tight" id="title-{{ $read->id }}">{{ $read->title }}</h3>
-                <button onclick="copyTitle('{{ $read->id }}')" class="text-purple-400 hover:text-purple-200 transition" title="Copy Title">
-                  <i data-lucide="copy" class="w-4 h-4"></i>
-                </button>
-              </div>
+             <!-- Title + Copy -->
+<div class="flex items-center justify-between gap-2 mb-1">
+  <h3 class="text-xs font-semibold text-white truncate leading-tight" id="title-{{ $read->id }}">
+    {{ $read->title }}
+  </h3>
+
+  <!-- store the first-segment (before ;) in data-title so JS doesn't need to query DOM text parsing every time -->
+  <button type="button"
+          class="btn-copy text-purple-400 hover:text-purple-200 transition"
+          data-id="{{ $read->id }}"
+          data-title="{{ \Illuminate\Support\Str::before($read->title, ';') }}"
+          aria-label="Copy title">
+    <i data-lucide="copy" class="w-4 h-4"></i>
+  </button>
+</div>
+
 
               <p class="text-base text-purple-400 font-bold">
                 Chapter: <span class="text-white chapter-span">{{ $read->chapter }}</span>
               </p>
             </div>
+
             <!-- CARD END -->
           @endforeach
         </div>
@@ -402,29 +406,70 @@
 </div>
 
 <script>
-  function copyTitle(id) {
-  const fullTitle = document.getElementById('title-' + id).innerText;
-  const firstTitle = fullTitle.split(';')[0].trim(); // get first part only
-  navigator.clipboard.writeText(firstTitle).then(() => {
-    showToast("Copied!");
-  }).catch(err => {
-    console.error('Failed to copy title:', err);
-  });
-}
-
-  function showToast(message) {
+  document.addEventListener('DOMContentLoaded', () => {
+    // init lucide icons if available
+    try { if (window.lucide) lucide.createIcons(); } catch (e) { console.warn('lucide init error', e); }
+  
     const toast = document.getElementById('toast');
-    toast.textContent = message;
-    toast.classList.remove('opacity-0');
-    toast.classList.add('opacity-100');
-
-    setTimeout(() => {
-      toast.classList.remove('opacity-100');
-      toast.classList.add('opacity-0');
-    }, 2000);
-  }
-</script>
-
+  
+    function showToast(message) {
+      if (!toast) return;
+      toast.textContent = message;
+      toast.classList.remove('opacity-0', 'pointer-events-none');
+      toast.classList.add('opacity-100');
+      // hide after 2s
+      clearTimeout(toast._hideTimer);
+      toast._hideTimer = setTimeout(() => {
+        toast.classList.remove('opacity-100');
+        toast.classList.add('opacity-0', 'pointer-events-none');
+      }, 2000);
+    }
+  
+    function fallbackCopy(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.left = '-99999px';
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand('copy');
+        showToast('Copied: ' + (text.length > 30 ? text.slice(0, 30) + '…' : text));
+      } catch (err) {
+        console.error('fallback copy failed', err);
+        showToast('Copy failed');
+      }
+      document.body.removeChild(ta);
+    }
+  
+    document.querySelectorAll('.btn-copy').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        // Prefer data-title (first part before ';' precomputed server side), fallback to DOM
+        const raw = btn.getAttribute('data-title') ?? document.getElementById('title-' + btn.dataset.id)?.innerText ?? '';
+        const text = raw.includes(';') ? raw.split(';')[0].trim() : raw.trim();
+  
+        if (!text) {
+          showToast('Nothing to copy');
+          return;
+        }
+  
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(text);
+            showToast('Copied: ' + (text.length > 30 ? text.slice(0, 30) + '…' : text));
+          } else {
+            fallbackCopy(text);
+          }
+        } catch (err) {
+          console.error('clipboard api error', err);
+          // try fallback
+          fallbackCopy(text);
+        }
+      });
+    });
+  });
+  </script>
+  
 
 
   <!-- Modal -->
@@ -433,11 +478,9 @@
   <div class="bg-gray-900 border border-purple-600 rounded-2xl shadow-2xl w-full max-w-2xl p-6 relative text-white">
     
     <!-- Close Button -->
-    <button id="closeModal"
-            class="absolute top-2 right-2 text-white hover:text-red-400 text-2xl font-bold">&times;</button>
+    <button id="closeModal" class="absolute top-2 right-2 text-white hover:text-red-400 text-2xl font-bold">&times;</button>
 
-   
-
+  
    <form id="updateForm" action="{{ route('read.update', ['id' => '__ID__']) }}" method="POST" enctype="multipart/form-data">
     @csrf
     @method('PUT')
@@ -536,9 +579,6 @@ function formatNoteTitle(rawTitle) {
 
   return formatted;
 }
-
-
-
 
   document.querySelectorAll('.btn-edit').forEach(button => {
     button.addEventListener('click', function () {

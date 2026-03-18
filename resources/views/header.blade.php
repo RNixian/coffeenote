@@ -1,6 +1,8 @@
-<!-- Load Lucide Icons -->
-<script src="https://unpkg.com/lucide@latest"></script>
-<script src="https://unpkg.com/alpinejs" defer></script>
+<link href="/css/tailwind.min.css" rel="stylesheet" />
+<script src="/js/tailwind.js"></script>
+
+<script src="/js/alpine.min.js" defer></script>
+<script src="/js/lucide.js"></script>
 
 <!-- Header / Navbar (Glitch Style) -->
 <header class="bg-black text-green-400 shadow-lg w-full fixed top-0 left-0 z-50 border-b-4 border-purple-500">

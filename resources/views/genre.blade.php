@@ -4,7 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SetUp-Genre</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
+  <link href="/css/tailwind.min.css" rel="stylesheet" />
+  <script src="/js/tailwind.js"></script>
+  
+  <script src="/js/alpine.min.js" defer></script>
+  <script src="/js/lucide.js"></script>
+  
   <style>
     .glitch {
       position: relative;

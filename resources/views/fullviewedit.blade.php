@@ -5,11 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="X-UA-Compatible" content="ie=edge" />
   <title>Reader's Note-Update</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+  <link href="/css/tailwind.min.css" rel="stylesheet" />
+  <script src="/js/tailwind.js"></script>
   
-
+  <script src="/js/alpine.min.js" defer></script>
+  <script src="/js/lucide.js"></script>
+  
   <style>
     .glitch-text {
       position: relative;
