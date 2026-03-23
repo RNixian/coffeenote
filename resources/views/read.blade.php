@@ -328,10 +328,18 @@
               <!-- Floating Buttons Container (top-right outside the card) -->
               <div class="absolute -top--10 -right-4 flex flex-col gap-1 z-50">
                 <!-- Delete -->
-                <a href="{{ route('read.delete', $read->id) }}"
-                  class="bg-red-500 hover:bg-red-600 text-white font-bold rounded w-7 h-7 flex items-center justify-center transition-transform duration-200">
-                  <i data-lucide="trash" class="w-3.5 h-3.5"></i>
-                </a>
+                <form action="{{ route('read.delete', $read->id) }}"
+                  method="POST"
+                  onsubmit="return confirm('Are you sure you want to delete this note?');">
+                @csrf
+                @method('DELETE')
+            
+                <button type="submit"
+                    class="bg-red-500 hover:bg-red-600 text-white font-bold rounded w-7 h-7
+                           flex items-center justify-center">
+                    <i data-lucide="trash" class="w-3.5 h-3.5"></i>
+                </button>
+            </form>
 
                 <!-- Full Edit -->
                 @php

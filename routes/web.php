@@ -50,7 +50,7 @@ Route::post('/add-to-read', [ReadController::class, 'storetoread'])->name('store
 Route::get('/fullviewedit', [ReadController::class, 'fullviewedit'])->name('fullviewedit');
 
 Route::prefix('read')->name('read.')->group(function () {
-Route::get('/delete/{id}', [ReadController::class, 'deletenote'])->name('delete');
+Route::delete('/delete/{id}', [ReadController::class, 'deletenote'])->name('delete');
   Route::get('/edit/{id}', [ReadController::class, 'editnote'])->name('edit');
     Route::put('/update/{id}', [ReadController::class, 'updatenote'])->name('update');
     Route::get('/fulledit', [ReadController::class, 'fulledit'])->name('fulledit');

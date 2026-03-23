@@ -188,6 +188,46 @@
 </div>
 
 
+<div class="bg-black p-6">
+  <h2 class="glitch mb-10 text-center text-[70px]" data-text="Update Count">
+    Update Count
+  </h2>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-7 gap-6">
+    @forelse ($ReadHistory as $read)
+    <div class="bg-gray-900 border border-purple-600 rounded-2xl shadow-lg p-4 text-white">
+
+        <div class="w-full h-48 overflow-hidden rounded-xl mb-4">
+            <img src="{{ asset($read->coverphoto ? 'storage/' . $read->coverphoto : 'images/default.png') }}"
+                 alt="{{ $read->title }}"
+                 class="w-full h-full object-cover transition-transform duration-300 hover:scale-105" />
+        </div>
+
+        <h3 class="text-base font-semibold text-white mb-1 truncate">{{ $read->title }}</h3>
+        <p class="text-lg text-purple-400 font-bold">
+          Chapter: <span class="text-white">{{ $read->chapter }}</span>
+        </p>   
+        <p class="text-lg text-purple-400 font-bold">
+            Updates: <span class="text-white">{{ $read->histories_count }}</span>
+        </p>
+
+        @if($read->histories_count > 0)
+        <p class="text-xs text-gray-400 mt-2">
+            LU: {{ $read->updated_at->format('M d, Y') }}
+        </p>
+        @endif
+    </div>
+    @empty
+    <p class="text-gray-400 col-span-full text-center">No update history found.</p>
+    @endforelse
+</div>
+
+  </div>
+</div>
+
+
+
+
  <script>
   lucide.createIcons();
 </script>

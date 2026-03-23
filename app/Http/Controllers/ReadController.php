@@ -7,10 +7,11 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
-
+use Illuminate\Support\Facades\DB;
 use App\Models\GenreModel;
 use App\Models\CategoryModel;
 use App\Models\ReadModel;
+use App\Models\ReadHistoryModel;
 
 class ReadController extends Controller
 {
@@ -162,25 +163,34 @@ class ReadController extends Controller
     }
 
     // UPDATE
-public function updatenote(Request $request, $id)
-{
-    $request->validate([
-        'chapter' => 'required|string|max:255',
-        'page' => 'nullable|string|max:255',
-    ]);
-
-    $read = ReadModel::find($id);
-
-    if (!$read) {
-        return redirect()->route('read')->with('error', 'Note not found.');
+    public function updatenote(Request $request, $id)
+    {
+        $request->validate([
+            'chapter' => 'required|string|max:255',
+            'page'    => 'nullable|string|max:255',
+        ]);
+    
+        DB::transaction(function () use ($request, $id) {
+    
+            $read = ReadModel::findOrFail($id);
+    
+            // 🔹 Store history BEFORE update
+            ReadHistoryModel::create([
+                'history_id' => $read->id,
+            ]);
+    
+            // 🔹 Update main record
+            $read->update([
+                'chapter' => $request->chapter,
+                'page'    => $request->page,
+            ]);
+        });
+    
+        return redirect()
+            ->route('read')
+            ->with('success', 'Note updated successfully.')
+            ->with('updated_id', $id);
     }
-
-    $read->chapter = $request->input('chapter');
-    $read->page = $request->input('page');
-    $read->save();
-
-    return redirect()->route('read')->with('success', 'Note updated successfully.')->with('updated_id', $id);
-}
 
 
     public function fullviewedit(Request $request)
@@ -275,8 +285,10 @@ public function dashread() {
         ->take(21)
         ->get();
 
-
-
+$ReadHistory = ReadModel::withCount('histories')  // counts how many times read.id appears in read_history
+    ->orderBy('histories_count', 'desc')     // ascending by number of updates
+    ->take(7)
+    ->get();
 
     $totalnotes = ReadModel::count();
     $totalongoing = ReadModel::where('status', 'ongoing')->count();
@@ -327,7 +339,7 @@ public function dashread() {
         'ReadModel',
         'ReadModels',
         'chaptersum',
-      
+        'ReadHistory',
         'categoryCounts',
         'topGenres'
     ));

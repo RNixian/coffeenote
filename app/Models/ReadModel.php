@@ -25,4 +25,11 @@ class ReadModel extends Model
         'status',
     ];
 
+// App\Models\ReadModel.php
+public function histories()
+{
+    return $this->hasMany(ReadHistoryModel::class, 'history_id'); 
+    // 'read_id' in read_history points to this read.id
+}
+
 }
